@@ -10,8 +10,8 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet">
     
-    <!-- إضافة مكتبة خرائط جوجل (Google Maps Places) -->
-    <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY&libraries=places&language=ar"></script>
+    <!-- تم إيقاف مكتبة خرائط جوجل مؤقتاً حتى يتم وضع الـ API KEY الحقيقي -->
+    <!-- <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY&libraries=places&language=ar"></script> -->
 
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -564,7 +564,8 @@
             stopAllAudio();
             currentAudio = audioEl;
             audioEl.play().then(() => updateAudioUI()).catch(() => {
-                showToast("عذراً، تعذر تشغيل المقطع الصوتي. تأكد من وجود ملف audio2.mp3");
+                // إخفاء رسالة الخطأ المزعجة والاكتفاء بتسجيلها في الكونسول
+                console.warn("Autoplay prevented or audio file missing.");
                 currentAudio = null;
                 updateAudioUI();
             });
@@ -620,20 +621,8 @@
                     currentAudio = audio1;
                     updateAudioUI();
                 }).catch(error => {
-                    // المتصفح منع التشغيل التلقائي، ننتظر أول حركة للمستخدم (كليك أو سكرول)
-                    const startAudioOnInteract = () => {
-                        if (!currentAudio) {
-                            playSpecificAudio(audio1);
-                        }
-                        // إزالة المستمعين بعد أول تفاعل باش ما يبقاش يخدم الكود مرات أخرى
-                        document.removeEventListener('click', startAudioOnInteract);
-                        document.removeEventListener('touchstart', startAudioOnInteract);
-                        document.removeEventListener('scroll', startAudioOnInteract);
-                    };
-                    // استشعار أي تفاعل من المستخدم
-                    document.addEventListener('click', startAudioOnInteract, { once: true });
-                    document.addEventListener('touchstart', startAudioOnInteract, { once: true });
-                    document.addEventListener('scroll', startAudioOnInteract, { once: true });
+                    // المتصفح منع التشغيل التلقائي، لا بأس، يمكن للمستخدم تشغيله يدوياً عبر زر Play
+                    console.log("Autoplay blocked by browser policy.");
                 });
             }
         });
@@ -719,8 +708,8 @@
             }
         }
         
-        // تشغيل خاصية البحث الذكي عند تحميل الصفحة
-        window.addEventListener('load', initMosqueAutocomplete);
+        // تم إيقاف تشغيل خاصية البحث الذكي مؤقتاً
+        // window.addEventListener('load', initMosqueAutocomplete);
 
         // --- Modal Logic ---
         function openAddModal() {
