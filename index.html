@@ -447,160 +447,7 @@
     <!-- Scripts -->
     <script>
         const themeToggleBtn = document.getElementById('themeToggleBtn');
-        const themeToggleDarkIcon = document.getElementById('themeToggleDarkIcon');
-        const themeToggleLightIcon = document.getElementById('themeToggleLightIcon');
-
-        if (localStorage.getItem('color-theme') === 'dark' || (!('color-theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-            themeToggleLightIcon.classList.remove('hidden');
-        } else {
-            themeToggleDarkIcon.classList.remove('hidden');
-        }
-
-        themeToggleBtn.addEventListener('click', function() {
-            themeToggleDarkIcon.classList.toggle('hidden');
-            themeToggleLightIcon.classList.toggle('hidden');
-            if (document.documentElement.classList.contains('dark')) {
-                document.documentElement.classList.remove('dark');
-                localStorage.setItem('color-theme', 'light');
-            } else {
-                document.documentElement.classList.add('dark');
-                localStorage.setItem('color-theme', 'dark');
-            }
-        });
-
-        // Audio Management (Reliable Manual Play)
-        const audio1 = document.getElementById('audio1');
-        const audio2 = document.getElementById('audio2');
-        const playBtn1 = document.getElementById('playBtn1');
-        const playIcon1 = document.getElementById('playIcon1');
-        const playBtn2 = document.getElementById('playBtn2');
-        const playIcon2 = document.getElementById('playIcon2');
-        const globalStopBtn = document.getElementById('globalStopBtn');
-        
-        let currentAudio = null;
-        let sequenceTimeout = null;
-
-        function updateAudioUI() {
-            if(playIcon1) setPlayIcon(playIcon1, audio1 === currentAudio && !audio1.paused);
-            if(playIcon2) setPlayIcon(playIcon2, audio2 === currentAudio && !audio2.paused);
-            if ((audio1 && !audio1.paused) || (audio2 && !audio2.paused) || sequenceTimeout) {
-                globalStopBtn.classList.remove('translate-y-20', 'opacity-0', 'pointer-events-none');
-            } else {
-                globalStopBtn.classList.add('translate-y-20', 'opacity-0', 'pointer-events-none');
-            }
-        }
-
-        function playSpecificAudio(audioEl) {
-            stopAllAudio();
-            currentAudio = audioEl;
-            audioEl.play().then(() => updateAudioUI()).catch(() => {
-                currentAudio = null;
-                updateAudioUI();
-            });
-        }
-
-        function stopAllAudio() {
-            clearTimeout(sequenceTimeout);
-            sequenceTimeout = null;
-            if (audio1) { audio1.pause(); audio1.currentTime = 0; }
-            if (audio2) { audio2.pause(); audio2.currentTime = 0; }
-            currentAudio = null;
-            updateAudioUI();
-        }
-
-        if(playBtn1) {
-            playBtn1.addEventListener('click', () => {
-                if (audio1 === currentAudio && !audio1.paused) stopAllAudio();
-                else playSpecificAudio(audio1);
-            });
-        }
-
-        if(playBtn2) {
-            playBtn2.addEventListener('click', () => {
-                if (audio2 === currentAudio && !audio2.paused) stopAllAudio();
-                else playSpecificAudio(audio2);
-            });
-        }
-
-        if(globalStopBtn) {
-            globalStopBtn.addEventListener('click', stopAllAudio);
-        }
-
-        audio1.addEventListener('ended', () => {
-            updateAudioUI();
-            sequenceTimeout = setTimeout(() => {
-                playSpecificAudio(audio2);
-            }, 4000);
-        });
-
-        audio2.addEventListener('ended', () => {
-            currentAudio = null;
-            updateAudioUI();
-        });
-
-        function setPlayIcon(iconElement, isPlaying) {
-            if (isPlaying) {
-                iconElement.innerHTML = '<path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />';
-            } else {
-                iconElement.innerHTML = '<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" />';
-            }
-        }
-
-        // Copy RIB
-        function copyRIB() {
-            const ribText = document.getElementById('ribNumber').innerText.replace(/\s/g, '');
-            navigator.clipboard.writeText(ribText).then(() => showToast("تم نسخ رقم الحساب بنجاح!"))
-            .catch(() => {
-                const el = document.createElement('textarea');
-                el.value = ribText; document.body.appendChild(el); el.select();
-                document.execCommand('copy'); document.body.removeChild(el);
-                showToast("تم نسخ رقم الحساب بنجاح!");
-            });
-        }
-
-        // Copy Doaa
-        function copyDoaa(elementId) {
-            const text = document.getElementById(elementId).innerText.trim();
-            navigator.clipboard.writeText(text).then(() => showToast("تم نسخ الدعاء بنجاح!"))
-            .catch(() => {
-                const el = document.createElement('textarea');
-                el.value = text; document.body.appendChild(el); el.select();
-                document.execCommand('copy'); document.body.removeChild(el);
-                showToast("تم نسخ الدعاء بنجاح!");
-            });
-        }
-
-        function showToast(message) {
-            const toast = document.createElement('div');
-            toast.textContent = message;
-            toast.className = 'fixed bottom-6 left-1/2 -translate-x-1/2 bg-amek-dark text-white px-6 py-3 rounded-full shadow-xl z-[200] font-bold text-sm text-center border border-amek-gold/30';
-            document.body.appendChild(toast);
-            setTimeout(() => toast.remove(), 3000);
-        }
-
-        // Dynamic Placeholders for Mosque & Cemetery based on City
-        const mosquePlaceholders = {
-            "مراكش": "مثال: مسجد الكتبية، مسجد مولاي الحسن...",
-            "الدار البيضاء": "مثال: مسجد الحسن الثاني، مسجد القدس...",
-            "الرباط": "مثال: مسجد بدر، مسجد حسان...",
-            "طنجة": "مثال: المسجد الأعظم، مسجد السوريين...",
-            "أكادير": "مثال: مسجد محمد الخامس، مسجد لبنان...",
-            "فاس": "مثال: جامع القرويين، مسجد التاجموعتي...",
-            "مكناس": "مثال: المسجد الأعظم، مسجد محمد السادس...",
-            "الجديدة": "مثال: مسجد إبراهيم الخليل..."
-        };
-
-        const cemeteryPlaceholders = {
-            "مراكش": "مثال: مقبرة باب دكالة، مقبرة الإمام البوصيري...",
-            "الدار البيضاء": "مثال: مقبرة الشهداء، مقبرة الغفران...",
-            "الرباط": "مثال: مقبرة الشهداء، مقبرة سعة...",
-            "طنجة": "مثال: مقبرة المجاهدين، مقبرة الإسماعيلية...",
-            "أكادير": "مثال: مقبرة تيجكالت، المقبرة المركزية...",
-            "فاس": "مثال: مقبرة باب الفتوح...",
-            "مكناس": "مثال: مقبرة الزيتونة...",
-            "الجديدة": "مثال: مقبرة سداد..."
-        };
-
+// ... existing code ... -->
         const modalCitySelect = document.getElementById('modal_city');
         const modalMosqueInput = document.getElementById('modal_mosque');
         const modalCemeteryInput = document.getElementById('modal_cemetery');
@@ -782,9 +629,17 @@
             const cemetery = data.cemetery || '';
             const phone = data.family_phone || '';
             
+            // تنظيف اسم المسجد وإضافة كلمة مسجد أوتوماتيكياً لتفادي المقاهي أو الأماكن الأخرى
+            let cleanMosque = mosque.replace(/مسجد|جامع|الجامع|المسجد/gi, '').trim();
+            const mosqueQuery = `مسجد ${cleanMosque} ${city} المغرب`;
+
+            // تنظيف اسم المقبرة وإضافة كلمة مقبرة أوتوماتيكياً
+            let cleanCemetery = cemetery.replace(/مقبرة|المقبرة/gi, '').trim();
+            const cemeteryQuery = `مقبرة ${cleanCemetery} ${city} المغرب`;
+            
             const mosqueMapLink = (data.mosque_map && data.mosque_map.trim() !== '') 
                 ? data.mosque_map 
-                : `https://maps.google.com/?q=${encodeURIComponent(mosque + ' ' + city + ' المغرب')}`;
+                : `https://maps.google.com/?q=${encodeURIComponent(mosqueQuery)}`;
 
             const dateObj = new Date(prayerTime);
             const today = new Date();
