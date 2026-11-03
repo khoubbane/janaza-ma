@@ -263,7 +263,7 @@
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div class="bg-white dark:bg-amek-card p-8 rounded-3xl border border-gray-100 dark:border-amek-green/20 shadow-sm relative">
                     <p class="text-lg font-bold text-gray-700 dark:text-gray-300 leading-loose relative z-10">
-                        اللهم اغفر له وارحمه، وعافه واعف عنه، وأكرم نزله، ووسع مدخله، واغسله بالماء والثلج والبرد.
+                        اللهم اغفر له وارحمه، وعافه واعف عنه، وأكرم نزله، ووسع مدخله، واغسله بالماء والثَّلْج والبرد.
                     </p>
                 </div>
                 <div class="bg-white dark:bg-amek-card p-8 rounded-3xl border border-gray-100 dark:border-amek-green/20 shadow-sm relative">
@@ -397,7 +397,7 @@
                     </div>
                     <div>
                         <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">رابط المسجد في Google Maps (اختياري)</label>
-                        <input type="url" id="modal_mosque_map" placeholder="اتركه فارغاً أو أدخله يدوياً..." class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-amek-green/40 dark:bg-amek-deep dark:text-white outline-none text-sm font-semibold" dir="ltr">
+                        <input type="url" id="modal_mosque_map" placeholder="اتركه فارغاً ليتم توليده أوتوماتيكياً..." class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-amek-green/40 dark:bg-amek-deep dark:text-white outline-none text-sm font-semibold" dir="ltr">
                     </div>
                     <div>
                         <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">صلاة الجنازة (بعد صلاة...)</label>
@@ -469,8 +469,8 @@
         let sequenceTimeout = null;
 
         function updateAudioUI() {
-            setPlayIcon(playIcon1, audio1 === currentAudio && !audio1.paused);
-            setPlayIcon(playIcon2, audio2 === currentAudio && !audio2.paused);
+            if(playIcon1) setPlayIcon(playIcon1, audio1 === currentAudio && !audio1.paused);
+            if(playIcon2) setPlayIcon(playIcon2, audio2 === currentAudio && !audio2.paused);
             if ((audio1 && !audio1.paused) || (audio2 && !audio2.paused) || sequenceTimeout) {
                 globalStopBtn.classList.remove('translate-y-20', 'opacity-0', 'pointer-events-none');
             } else {
@@ -496,17 +496,23 @@
             updateAudioUI();
         }
 
-        playBtn1.addEventListener('click', () => {
-            if (audio1 === currentAudio && !audio1.paused) stopAllAudio();
-            else playSpecificAudio(audio1);
-        });
+        if(playBtn1) {
+            playBtn1.addEventListener('click', () => {
+                if (audio1 === currentAudio && !audio1.paused) stopAllAudio();
+                else playSpecificAudio(audio1);
+            });
+        }
 
-        playBtn2.addEventListener('click', () => {
-            if (audio2 === currentAudio && !audio2.paused) stopAllAudio();
-            else playSpecificAudio(audio2);
-        });
+        if(playBtn2) {
+            playBtn2.addEventListener('click', () => {
+                if (audio2 === currentAudio && !audio2.paused) stopAllAudio();
+                else playSpecificAudio(audio2);
+            });
+        }
 
-        globalStopBtn.addEventListener('click', stopAllAudio);
+        if(globalStopBtn) {
+            globalStopBtn.addEventListener('click', stopAllAudio);
+        }
 
         audio1.addEventListener('ended', () => {
             updateAudioUI();
@@ -528,16 +534,12 @@
             }
         }
 
-        // Reliable Autoplay on ANY User Interaction (Click, Scroll, Touch)
+        // Reliable Autoplay on User Interaction
         let hasInteracted = false;
         function attemptAutoplay() {
             if (hasInteracted) return;
             hasInteracted = true;
-            
-            // محاولة تشغيل الصوت فورا مع أول تفاعل
             playSpecificAudio(audio1);
-
-            // إزالة المستمعات بعد أول تفاعل ناجح
             window.removeEventListener('scroll', attemptAutoplay);
             window.removeEventListener('click', attemptAutoplay);
             window.removeEventListener('touchstart', attemptAutoplay);
@@ -571,7 +573,7 @@
             setTimeout(() => toast.remove(), 3000);
         }
 
-        // Dynamic Mosque Placeholders & Reset on City Change
+        // Dynamic Placeholders & Reset Mosque on City Change
         const mosquePlaceholders = {
             "مراكش": "مثال: مسجد الكتبية، مسجد مولاي الحسن...",
             "الدار البيضاء": "مثال: مسجد الحسن الثاني، مسجد القدس...",
@@ -590,8 +592,8 @@
         if (modalCitySelect && modalMosqueInput) {
             modalMosqueInput.placeholder = mosquePlaceholders[modalCitySelect.value] || "اسم المسجد...";
             modalCitySelect.addEventListener('change', (e) => {
-                modalMosqueInput.value = ''; // تفريغ اسم المسجد عند تغيير المدينة
-                modalMosqueMapInput.value = ''; // تفريغ رابط الخريطة كذلك
+                modalMosqueInput.value = '';
+                if(modalMosqueMapInput) modalMosqueMapInput.value = '';
                 modalMosqueInput.placeholder = mosquePlaceholders[e.target.value] || "اسم المسجد...";
             });
         }
