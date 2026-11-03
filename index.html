@@ -528,22 +528,26 @@
             }
         }
 
-        // Reliable Autoplay on Interaction / Scroll
+        // Reliable Autoplay on ANY User Interaction (Click, Scroll, Touch)
         let hasInteracted = false;
         function attemptAutoplay() {
             if (hasInteracted) return;
             hasInteracted = true;
-            audio1.play().then(() => {
-                currentAudio = audio1;
-                updateAudioUI();
-            }).catch(() => {});
+            
+            // محاولة تشغيل الصوت فورا مع أول تفاعل
+            playSpecificAudio(audio1);
+
+            // إزالة المستمعات بعد أول تفاعل ناجح
             window.removeEventListener('scroll', attemptAutoplay);
             window.removeEventListener('click', attemptAutoplay);
             window.removeEventListener('touchstart', attemptAutoplay);
+            window.removeEventListener('keydown', attemptAutoplay);
         }
+
         window.addEventListener('scroll', attemptAutoplay, { once: true });
         window.addEventListener('click', attemptAutoplay, { once: true });
         window.addEventListener('touchstart', attemptAutoplay, { once: true });
+        window.addEventListener('keydown', attemptAutoplay, { once: true });
 
         // Copy RIB
         function copyRIB() {
