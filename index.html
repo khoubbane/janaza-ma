@@ -447,7 +447,149 @@
     <!-- Scripts -->
     <script>
         const themeToggleBtn = document.getElementById('themeToggleBtn');
-// ... existing code ... -->
+        const themeToggleDarkIcon = document.getElementById('themeToggleDarkIcon');
+        const themeToggleLightIcon = document.getElementById('themeToggleLightIcon');
+
+        function setThemeIcons() {
+            if (document.documentElement.classList.contains('dark')) {
+                themeToggleDarkIcon.classList.remove('hidden');
+                themeToggleLightIcon.classList.add('hidden');
+            } else {
+                themeToggleDarkIcon.classList.add('hidden');
+                themeToggleLightIcon.classList.remove('hidden');
+            }
+        }
+        setThemeIcons();
+
+        themeToggleBtn.addEventListener('click', function() {
+            document.documentElement.classList.toggle('dark');
+            if (document.documentElement.classList.contains('dark')) {
+                localStorage.setItem('color-theme', 'dark');
+            } else {
+                localStorage.setItem('color-theme', 'light');
+            }
+            setThemeIcons();
+        });
+
+        // Audio Players logic
+        const audio1 = document.getElementById('audio1');
+        const audio2 = document.getElementById('audio2');
+        const playBtn1 = document.getElementById('playBtn1');
+        const playIcon1 = document.getElementById('playIcon1');
+        const playBtn2 = document.getElementById('playBtn2');
+        const playIcon2 = document.getElementById('playIcon2');
+        const globalStopBtn = document.getElementById('globalStopBtn');
+
+        let currentAudio = null;
+
+        function stopAllAudio() {
+            audio1.pause(); audio1.currentTime = 0;
+            audio2.pause(); audio2.currentTime = 0;
+            playIcon1.innerHTML = '<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" />';
+            playIcon2.innerHTML = '<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" />';
+            globalStopBtn.classList.add('translate-y-20', 'opacity-0', 'pointer-events-none');
+            currentAudio = null;
+        }
+
+        function playTargetAudio(audio, icon) {
+            stopAllAudio();
+            currentAudio = audio;
+            audio.play().then(() => {
+                icon.innerHTML = '<path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />';
+                globalStopBtn.classList.remove('translate-y-20', 'opacity-0', 'pointer-events-none');
+            }).catch(err => {
+                console.log("Audio play blocked", err);
+            });
+        }
+
+        if(playBtn1) {
+            playBtn1.addEventListener('click', () => {
+                if(audio1.paused) {
+                    playTargetAudio(audio1, playIcon1);
+                } else {
+                    stopAllAudio();
+                }
+            });
+        }
+
+        if(playBtn2) {
+            playBtn2.addEventListener('click', () => {
+                if(audio2.paused) {
+                    playTargetAudio(audio2, playIcon2);
+                } else {
+                    stopAllAudio();
+                }
+            });
+        }
+
+        audio1.addEventListener('ended', () => {
+            playTargetAudio(audio2, playIcon2);
+        });
+
+        globalStopBtn.addEventListener('click', stopAllAudio);
+
+        // Copy Doaa & RIB Functions
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.className = 'fixed bottom-5 left-1/2 transform -translate-x-1/2 bg-amek-dark text-white px-6 py-3 rounded-2xl shadow-xl z-[200] text-sm font-bold animate-bounce';
+            toast.innerText = message;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        window.copyDoaa = function(elementId) {
+            const text = document.getElementById(elementId).innerText.trim();
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            document.body.appendChild(textArea);
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                showToast('تم نسخ الدعاء بنجاح!');
+            } catch (err) {
+                showToast('تعذر النسخ.');
+            }
+            document.body.removeChild(textArea);
+        };
+
+        window.copyRIB = function() {
+            const rib = document.getElementById('ribNumber').innerText.trim();
+            const textArea = document.createElement("textarea");
+            textArea.value = rib;
+            document.body.appendChild(textArea);
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                showToast('تم نسخ رقم الحساب البنكي (RIB)!');
+            } catch (err) {
+                showToast('تعذر النسخ.');
+            }
+            document.body.removeChild(textArea);
+        };
+
+        // Dynamic Placeholders & Auto Map Link
+        const mosquePlaceholders = {
+            "مراكش": "مثال: مسجد الكتبية، مولاي الحسن بالمحاميد...",
+            "الدار البيضاء": "مثال: الحسن الثاني، القدس...",
+            "الرباط": "مثال: بدر، حسان...",
+            "طنجة": "مثال: الأعظم، السوريين...",
+            "أكادير": "مثال: محمد الخامس، لبنان...",
+            "فاس": "مثال: القرويين، التاجموعتي...",
+            "مكناس": "مثال: الأعظم، محمد السادس...",
+            "الجديدة": "مثال: إبراهيم الخليل، بلحمودية..."
+        };
+
+        const cemeteryPlaceholders = {
+            "مراكش": "مثال: مقبرة باب دكالة، مقبرة الإمام البوصيري...",
+            "الدار البيضاء": "مثال: مقبرة الشهداء، مقبرة الغفران...",
+            "الرباط": "مثال: مقبرة الشهداء، مقبرة العضام...",
+            "طنجة": "مثال: مقبرة المجاهدين، مقبرة سيدي عمار...",
+            "أكادير": "مثال: مقبرة تيوغزا، مقبرة تليلا...",
+            "فاس": "مثال: المقبرة الكبيرة، باب الفتوح...",
+            "مكناس": "مثال: مقبرة الزيتون، مقبرة سيدي مسعود...",
+            "الجديدة": "مثال: مقبرة سيدي بويدكار..."
+        };
+
         const modalCitySelect = document.getElementById('modal_city');
         const modalMosqueInput = document.getElementById('modal_mosque');
         const modalCemeteryInput = document.getElementById('modal_cemetery');
@@ -629,7 +771,7 @@
             const cemetery = data.cemetery || '';
             const phone = data.family_phone || '';
             
-            // تنظيف اسم المسجد وإضافة كلمة مسجد أوتوماتيكياً لتفادي المقاهي أو الأماكن الأخرى
+            // تنظيف اسم المسجد وإضافة كلمة مسجد أوتوماتيكياً لتفادي المقاهي والأماكن الأخرى
             let cleanMosque = mosque.replace(/مسجد|جامع|الجامع|المسجد/gi, '').trim();
             const mosqueQuery = `مسجد ${cleanMosque} ${city} المغرب`;
 
@@ -682,97 +824,4 @@
                 </div>
             `;
         }
-
-        function formatMoroccanPhone(input) {
-            let cleaned = input.replace(/\D/g, '');
-            if (cleaned.startsWith('00212')) cleaned = cleaned.substring(5);
-            else if (cleaned.startsWith('212')) cleaned = cleaned.substring(3);
-            else if (cleaned.startsWith('0')) cleaned = cleaned.substring(1);
-            if (/^[5678]\d{8}$/.test(cleaned)) return '0' + cleaned;
-            return null;
-        }
-
-        const publicForm = document.getElementById('publicJanazaForm');
-        if (publicForm) {
-            publicForm.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                const btn = document.getElementById('submitPublicBtn');
-                btn.disabled = true;
-                btn.innerHTML = 'جاري التحقق والنشر...';
-
-                try {
-                    const newName = document.getElementById('modal_name').value;
-                    const newGender = document.getElementById('modal_gender').value;
-                    const newCity = document.getElementById('modal_city').value;
-                    const newMosque = document.getElementById('modal_mosque').value.trim();
-                    const newCemetery = document.getElementById('modal_cemetery').value.trim();
-                    const newPhone = document.getElementById('modal_family_phone').value.trim();
-                    const newMosqueMap = document.getElementById('modal_mosque_map').value.trim();
-                    const newPrayerName = document.getElementById('modal_prayer_name').value;
-                    const newPrayerDay = document.getElementById('modal_prayer_day').value;
-
-                    if (!newMosque || !newCemetery || !newPhone) {
-                        showToast('المرجو ملء جميع الحقول الإلزامية.');
-                        btn.disabled = false; btn.innerHTML = 'نشر الإعلان'; return;
-                    }
-
-                    const finalPhone = formatMoroccanPhone(newPhone);
-                    if (!finalPhone) {
-                        showToast('المرجو إدخال رقم هاتف مغربي صحيح.');
-                        btn.disabled = false; btn.innerHTML = 'نشر الإعلان'; return;
-                    }
-
-                    const prayerDate = new Date();
-                    if (newPrayerDay === 'tomorrow') prayerDate.setDate(prayerDate.getDate() + 1);
-                    if (newPrayerName === 'صلاة الظهر') prayerDate.setHours(13, 30, 0, 0);
-                    else if (newPrayerName === 'صلاة العصر') prayerDate.setHours(16, 30, 0, 0);
-                    else if (newPrayerName === 'صلاة المغرب') prayerDate.setHours(19, 30, 0, 0);
-
-                    // التحقق من أن وقت الصلاة لم يفت بعد
-                    if (newPrayerDay === 'today' && new Date().getTime() > prayerDate.getTime()) {
-                        showToast('عذراً، لا يمكن نشر إعلان صلاة قد فات وقتها اليوم.');
-                        btn.disabled = false; btn.innerHTML = 'نشر الإعلان'; return;
-                    }
-
-                    await addDoc(collection(db, "janazat"), {
-                        name: newName, gender: newGender, city: newCity,
-                        mosque: newMosque, cemetery: newCemetery,
-                        family_phone: finalPhone, mosque_map: newMosqueMap,
-                        prayer_name: newPrayerName, prayer_time: prayerDate.toISOString(),
-                        createdAt: new Date().toISOString()
-                    });
-
-                    showToast('تم نشر الإعلان بنجاح!');
-                    publicForm.reset();
-                    closeAddModal();
-                } catch (error) {
-                    showToast('حدث خطأ أثناء النشر.');
-                } finally {
-                    btn.disabled = false; btn.innerHTML = 'نشر الإعلان';
-                }
-            });
-        }
-
-        const notifyForm = document.getElementById('notifyForm');
-        if (notifyForm) {
-            notifyForm.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                const city = document.getElementById('notify_city').value;
-                const phone = document.getElementById('notify_phone').value.trim();
-                const finalPhone = formatMoroccanPhone(phone);
-                
-                if (!city || !finalPhone) {
-                    showToast('المرجو اختيار المدينة وإدخال رقم هاتف صحيح.');
-                    return;
-                }
-
-                await addDoc(collection(db, "subscribers"), {
-                    city: city, phone: finalPhone, subscribedAt: new Date().toISOString()
-                });
-                showToast('تم تسجيلك بنجاح للإشعارات!');
-                notifyForm.reset();
-            });
-        }
-    </script>
-</body>
-</html>
+// ... existing code ... -->
