@@ -182,7 +182,7 @@
                 <div class="flex flex-col gap-4 w-full xl:w-auto">
                     <div class="flex items-center gap-3">
                         <span class="text-sm font-bold text-gray-500 dark:text-gray-400 whitespace-nowrap">المدينة:</span>
-                        <div class="flex gap-2 overflow-x-auto hide-scrollbar w-full" id="cityFilters">
+                        <div class="flex gap-2 overflow-x-auto hide-scrollbar w-full flex-row-reverse justify-end" id="cityFilters">
                             <button class="city-filter-btn shrink-0 px-6 py-2.5 rounded-full bg-amek-dark text-white font-bold text-sm transition-all" data-city="all">الجميع</button>
                             <button class="city-filter-btn shrink-0 px-6 py-2.5 rounded-full bg-gray-100 dark:bg-amek-card text-gray-600 dark:text-gray-300 hover:bg-gray-200 font-bold text-sm transition-all" data-city="مراكش">مراكش</button>
                             <button class="city-filter-btn shrink-0 px-6 py-2.5 rounded-full bg-gray-100 dark:bg-amek-card text-gray-600 dark:text-gray-300 hover:bg-gray-200 font-bold text-sm transition-all" data-city="الدار البيضاء">الدار البيضاء</button>
@@ -196,7 +196,7 @@
                     </div>
                     <div class="flex items-center gap-3">
                         <span class="text-sm font-bold text-gray-500 dark:text-gray-400 whitespace-nowrap">التاريخ:</span>
-                        <div class="flex gap-2 overflow-x-auto hide-scrollbar w-full" id="dayFilters">
+                        <div class="flex gap-2 overflow-x-auto hide-scrollbar w-full flex-row-reverse justify-end" id="dayFilters">
                             <button class="day-filter-btn shrink-0 px-6 py-2.5 rounded-full bg-amek-dark text-white font-bold text-sm transition-all" data-day="all">الكل</button>
                             <button class="day-filter-btn shrink-0 px-6 py-2.5 rounded-full bg-gray-100 dark:bg-amek-card text-gray-600 dark:text-gray-300 hover:bg-gray-200 font-bold text-sm transition-all" data-day="اليوم">اليوم</button>
                             <button class="day-filter-btn shrink-0 px-6 py-2.5 rounded-full bg-gray-100 dark:bg-amek-card text-gray-600 dark:text-gray-300 hover:bg-gray-200 font-bold text-sm transition-all" data-day="غداً">غداً</button>
@@ -656,6 +656,111 @@
 
         const EXPIRY_HOURS = 6;
         const EXPIRY_MS = EXPIRY_HOURS * 60 * 60 * 1000;
+
+        // --- بداية الكود الذي تمت إضافته (منطق إرسال الفورمولير) ---
+        const publicJanazaForm = document.getElementById('publicJanazaForm');
+        if(publicJanazaForm) {
+            publicJanazaForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const submitBtn = document.getElementById('submitPublicBtn');
+                
+                const prayerName = document.getElementById('modal_prayer_name').value;
+                const prayerDay = document.getElementById('modal_prayer_day').value;
+                const phoneInput = document.getElementById('modal_family_phone').value;
+                
+                if(phoneInput.length !== 9) {
+                    showToast("المرجو إدخال 9 أرقام بعد +212");
+                    return;
+                }
+
+                // حساب وقت الصلاة للتحقق من مرور الوقت
+                const now = new Date();
+                const prayerTime = new Date();
+                if (prayerDay === 'tomorrow') {
+                    prayerTime.setDate(prayerTime.getDate() + 1);
+                }
+                
+                // تحديد توقيت تقريبي للصلوات
+                if (prayerName.includes('الظهر')) prayerTime.setHours(13, 15, 0);
+                else if (prayerName.includes('العصر')) prayerTime.setHours(16, 15, 0);
+                else if (prayerName.includes('المغرب')) prayerTime.setHours(18, 45, 0);
+                
+                // التحقق: هل فات وقت الصلاة المحددة؟ (منع النشر)
+                if (prayerDay === 'today' && now.getTime() > prayerTime.getTime()) {
+                    showToast("عذراً، لقد فات وقت هذه الصلاة اليوم. لا يمكن نشر الإعلان.");
+                    return; 
+                }
+
+                submitBtn.disabled = true;
+                submitBtn.innerText = 'جاري النشر...';
+
+                try {
+                    await addDoc(collection(db, "janazat"), {
+                        name: document.getElementById('modal_name').value,
+                        gender: document.getElementById('modal_gender').value,
+                        city: document.getElementById('modal_city').value,
+                        mosque: document.getElementById('modal_mosque').value,
+                        cemetery: document.getElementById('modal_cemetery').value,
+                        family_phone: '0' + phoneInput,
+                        mosque_map: document.getElementById('modal_mosque_map').value,
+                        prayer_name: prayerName,
+                        prayer_time: prayerTime.toISOString(), // حفظ التوقيت للفلترة التلقائية لاحقاً
+                        createdAt: new Date().toISOString(),
+                        status: 'approved' // يظهر مباشرة في الصفحة الرئيسية
+                    });
+                    
+                    closeAddModal();
+                    publicJanazaForm.reset();
+                    showToast("تم نشر الإعلان بنجاح!");
+                } catch (err) {
+                    console.error(err);
+                    showToast("حدث خطأ أثناء النشر.");
+                } finally {
+                    submitBtn.disabled = false;
+                    submitBtn.innerText = 'نشر الإعلان';
+                }
+            });
+        }
+
+        // كود التسجيل في إشعارات الواتساب
+        const notifyForm = document.getElementById('notifyForm');
+        if (notifyForm) {
+            notifyForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const submitBtn = document.getElementById('notify_submit');
+                const city = document.getElementById('notify_city').value;
+                const phone = document.getElementById('notify_phone').value;
+                
+                if (!city) {
+                    showToast("المرجو اختيار المدينة أولاً");
+                    return;
+                }
+                if (phone.length !== 9) {
+                    showToast("المرجو إدخال رقم هاتف صحيح");
+                    return;
+                }
+
+                submitBtn.disabled = true;
+                submitBtn.innerText = '...';
+
+                try {
+                    await addDoc(collection(db, "subscribers"), {
+                        city: city,
+                        phone: '0' + phone,
+                        createdAt: new Date().toISOString()
+                    });
+                    notifyForm.reset();
+                    showToast("تم تسجيلك بنجاح لتلقي إشعارات " + city);
+                } catch (err) {
+                    console.error(err);
+                    showToast("حدث خطأ أثناء التسجيل.");
+                } finally {
+                    submitBtn.disabled = false;
+                    submitBtn.innerText = 'تسجيل';
+                }
+            });
+        }
+        // --- نهاية الكود المضاف ---
 
         onSnapshot(collection(db, "janazat"), (snapshot) => {
             allJanazat = [];
