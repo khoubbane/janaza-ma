@@ -134,24 +134,26 @@
                             </div>
                             <span class="text-sm font-bold text-amek-dark dark:text-gray-200">تذكير اليوم</span>
                         </div>
-                        <span class="text-xs font-bold text-gray-500 dark:text-gray-400 bg-white/60 dark:bg-amek-deep/60 px-3 py-1.5 rounded-full border border-transparent dark:border-amek-green/20">سورة الأنبياء - ٣٥</span>
+                        <span class="text-xs font-bold text-gray-500 dark:text-gray-400 bg-white/60 dark:bg-amek-deep/60 px-3 py-1.5 rounded-full border border-transparent dark:border-amek-green/20">سورة العنكبوت - ٥٧</span>
                     </div>
 
-                    <h2 class="text-3xl md:text-4xl font-black text-amek-dark dark:text-white leading-[1.6] text-center font-tajawal mb-12">
-                        كُلُّ نَفْسٍ ذَائِقَةُ<br>
-                        الْمَوْتِ ۗ وَنَبْلُوكُم<br>
-                        بِالشَّرِّ وَالْخَيْرِ فِتْنَةً
+                    <h2 class="text-2xl md:text-[26px] font-black text-amek-dark dark:text-white leading-[1.8] text-center font-tajawal mb-10">
+                        كُلُّ نَفْسٍ ذَائِقَةُ الْمَوْتِ ۖ<br>
+                        ثُمَّ إِلَيْنَا تُرْجَعُونَ ۝<br>
+                        وَالَّذِينَ آمَنُوا وَعَمِلُوا الصَّالِحَاتِ<br>
+                        لَنُبَوِّئَنَّهُم مِّنَ الْجَنَّةِ غُرَفًا
                     </h2>
 
                     <div class="flex items-end justify-between">
-                        <button id="playBtn" class="w-14 h-14 bg-white dark:bg-amek-dark rounded-full flex items-center justify-center text-amek-dark dark:text-white hover:scale-105 transition-transform shadow-sm">
-                            <svg id="playIcon" class="w-6 h-6 ml-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" /></svg>
+                        <button id="playBtn1" class="w-14 h-14 bg-white dark:bg-amek-dark rounded-full flex items-center justify-center text-amek-dark dark:text-white hover:scale-105 transition-transform shadow-sm">
+                            <svg id="playIcon1" class="w-6 h-6 ml-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" /></svg>
                         </button>
                         <span class="text-xs font-bold text-gray-500 dark:text-gray-400">صدق الله العظيم</span>
                     </div>
                 </div>
-                <!-- Updated Audio Link to a reliable server (Mishary Alafasy - Al Anbiya) -->
-                <audio id="quranAudio" src="https://server8.mp3quran.net/afs/021.mp3" preload="auto"></audio>
+                <!-- Audio Elements for specific Ayahs -->
+                <audio id="audio1" src="audio1.mp3" preload="auto"></audio>
+                <audio id="audio2" src="audio2.mp3" preload="auto"></audio>
             </div>
             
         </div>
@@ -296,6 +298,28 @@
                     <p class="text-lg font-bold text-gray-700 dark:text-gray-300 leading-loose relative z-10">
                         اللهم اجعل قبره روضة من رياض الجنة، ولا تجعله حفرة من حفر النار. اللهم افسح له في قبره.
                     </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Quran Verse 2 Section -->
+    <section class="py-12 bg-gray-50 dark:bg-[#081F12] border-t border-gray-200 dark:border-amek-green/10 transition-colors">
+        <div class="container mx-auto px-4 lg:px-8 flex justify-center">
+            <div class="bg-[#EAF3EE] dark:bg-amek-card rounded-[2rem] p-8 md:p-10 relative overflow-hidden border border-[#D5E6DC] dark:border-amek-green/30 shadow-sm max-w-2xl w-full text-center transition-colors">
+                <span class="text-xs font-bold text-gray-500 dark:text-gray-400 bg-white/60 dark:bg-amek-deep/60 px-4 py-1.5 rounded-full border border-transparent dark:border-amek-green/20 mb-6 inline-block">سورة البقرة - ١٥٦ و ١٥٧</span>
+                
+                <h2 class="text-2xl md:text-3xl font-black text-amek-dark dark:text-white leading-[1.8] font-tajawal mb-8">
+                    الَّذِينَ إِذَا أَصَابَتْهُم مُّصِيبَةٌ<br>
+                    قَالُوا إِنَّا لِلَّهِ وَإِنَّا إِلَيْهِ رَاجِعُونَ ۝<br>
+                    أُولَٰئِكَ عَلَيْهِمْ صَلَوَاتٌ مِّن رَّبِّهِمْ وَرَحْمَةٌ
+                </h2>
+                
+                <div class="flex items-center justify-center gap-4">
+                    <button id="playBtn2" class="w-12 h-12 bg-white dark:bg-amek-dark rounded-full flex items-center justify-center text-amek-dark dark:text-white hover:scale-105 transition-transform shadow-sm">
+                        <svg id="playIcon2" class="w-5 h-5 ml-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" /></svg>
+                    </button>
+                    <span class="text-xs font-bold text-gray-500 dark:text-gray-400">صدق الله العظيم</span>
                 </div>
             </div>
         </div>
@@ -454,6 +478,12 @@
         </div>
     </div>
 
+    <!-- Floating Global Stop Audio Button (Hidden by default) -->
+    <button id="globalStopBtn" class="fixed bottom-6 right-6 bg-red-500 text-white px-5 py-3 rounded-full shadow-2xl z-[150] flex items-center gap-2 hover:bg-red-600 transition-all duration-300 transform translate-y-20 opacity-0 pointer-events-none border border-red-400">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z"></path></svg>
+        <span class="font-bold text-sm">إيقاف التلاوة</span>
+    </button>
+
     <!-- Footer -->
     <footer class="bg-white dark:bg-amek-deep py-8 text-center border-t border-gray-200 dark:border-amek-green/20 mt-auto transition-colors">
         <p class="text-gray-400 dark:text-gray-500 text-sm font-bold">
@@ -498,43 +528,80 @@
         });
 
         // --- Audio Player Logic ---
-        const audio = document.getElementById('quranAudio');
-        const playBtn = document.getElementById('playBtn');
-        const playIcon = document.getElementById('playIcon');
-        let isPlaying = false;
+        const audio1 = document.getElementById('audio1');
+        const audio2 = document.getElementById('audio2');
+        const playBtn1 = document.getElementById('playBtn1');
+        const playIcon1 = document.getElementById('playIcon1');
+        const playBtn2 = document.getElementById('playBtn2');
+        const playIcon2 = document.getElementById('playIcon2');
+        const globalStopBtn = document.getElementById('globalStopBtn');
+        
+        let currentAudio = null;
+        let sequenceTimeout = null;
 
-        function togglePlay() {
-            if (isPlaying) {
-                audio.pause();
-                setPlayIcon(false);
-                isPlaying = false;
+        function updateAudioUI() {
+            setPlayIcon(playIcon1, audio1 === currentAudio && !audio1.paused);
+            setPlayIcon(playIcon2, audio2 === currentAudio && !audio2.paused);
+            
+            // إظهار زر الإيقاف العائم إذا كان هناك صوت يشتغل أو قيد الانتظار
+            if ((audio1 && !audio1.paused) || (audio2 && !audio2.paused) || sequenceTimeout) {
+                globalStopBtn.classList.remove('translate-y-20', 'opacity-0', 'pointer-events-none');
             } else {
-                const playPromise = audio.play();
-                if (playPromise !== undefined) {
-                    playPromise.then(() => {
-                        setPlayIcon(true);
-                        isPlaying = true;
-                    }).catch(error => {
-                        showToast("عذراً، تعذر تشغيل المقطع الصوتي.");
-                        isPlaying = false;
-                    });
-                }
+                globalStopBtn.classList.add('translate-y-20', 'opacity-0', 'pointer-events-none');
             }
         }
 
-        function setPlayIcon(playing) {
-            if (playing) {
-                playIcon.innerHTML = '<path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />';
-            } else {
-                playIcon.innerHTML = '<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" />';
-            }
+        function playSpecificAudio(audioEl) {
+            stopAllAudio();
+            currentAudio = audioEl;
+            audioEl.play().then(() => updateAudioUI()).catch(() => {
+                showToast("عذراً، تعذر تشغيل المقطع الصوتي. تأكد من وجود ملف audio2.mp3");
+                currentAudio = null;
+                updateAudioUI();
+            });
         }
 
-        playBtn.addEventListener('click', togglePlay);
-        audio.addEventListener('ended', () => {
-            isPlaying = false;
-            setPlayIcon(false);
+        function stopAllAudio() {
+            clearTimeout(sequenceTimeout);
+            sequenceTimeout = null;
+            if (audio1) { audio1.pause(); audio1.currentTime = 0; }
+            if (audio2) { audio2.pause(); audio2.currentTime = 0; }
+            currentAudio = null;
+            updateAudioUI();
+        }
+
+        playBtn1.addEventListener('click', () => {
+            if (audio1 === currentAudio && !audio1.paused) stopAllAudio();
+            else playSpecificAudio(audio1);
         });
+
+        playBtn2.addEventListener('click', () => {
+            if (audio2 === currentAudio && !audio2.paused) stopAllAudio();
+            else playSpecificAudio(audio2);
+        });
+
+        globalStopBtn.addEventListener('click', stopAllAudio);
+
+        // التسلسل: عند انتهاء الآية الأولى، انتظر 4 ثواني وشغل الثانية
+        audio1.addEventListener('ended', () => {
+            updateAudioUI();
+            sequenceTimeout = setTimeout(() => {
+                playSpecificAudio(audio2);
+            }, 4000);
+        });
+
+        audio2.addEventListener('ended', () => {
+            currentAudio = null;
+            updateAudioUI();
+        });
+
+        function setPlayIcon(iconElement, isPlaying) {
+            if (isPlaying) {
+                iconElement.innerHTML = '<path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />';
+            } else {
+                iconElement.innerHTML = '<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" />';
+            }
+        }
 
         // --- Copy RIB Logic ---
         function copyRIB() {
