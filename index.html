@@ -751,7 +751,6 @@
             const cemetery = data.cemetery || '';
             const phone = data.family_phone || '';
             
-            // إذا لم يضع المستخدم رابط الخريطة، نقوم بتوليد رابط بحث تلقائي بالاسم والمدينة
             const mosqueMapLink = (data.mosque_map && data.mosque_map.trim() !== '') 
                 ? data.mosque_map 
                 : `https://maps.google.com/?q=${encodeURIComponent(mosque + ' ' + city + ' المغرب')}`;
@@ -842,6 +841,12 @@
                     if (newPrayerName === 'صلاة الظهر') prayerDate.setHours(13, 30, 0, 0);
                     else if (newPrayerName === 'صلاة العصر') prayerDate.setHours(16, 30, 0, 0);
                     else if (newPrayerName === 'صلاة المغرب') prayerDate.setHours(19, 30, 0, 0);
+
+                    // التحقق من أن وقت الصلاة لم يفت بعد
+                    if (newPrayerDay === 'today' && new Date().getTime() > prayerDate.getTime()) {
+                        showToast('عذراً، لا يمكن نشر إعلان صلاة قد فات وقتها اليوم.');
+                        btn.disabled = false; btn.innerHTML = 'نشر الإعلان'; return;
+                    }
 
                     await addDoc(collection(db, "janazat"), {
                         name: newName, gender: newGender, city: newCity,
