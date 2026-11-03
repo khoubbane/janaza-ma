@@ -261,20 +261,32 @@
         <div class="container mx-auto px-4 lg:px-8">
             <h2 class="text-3xl font-black text-amek-dark dark:text-white font-tajawal mb-10 text-center">أدعية مأثورة للميت</h2>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div class="bg-white dark:bg-amek-card p-8 rounded-3xl border border-gray-100 dark:border-amek-green/20 shadow-sm relative">
-                    <p class="text-lg font-bold text-gray-700 dark:text-gray-300 leading-loose relative z-10">
+                <div class="bg-white dark:bg-amek-card p-8 rounded-3xl border border-gray-100 dark:border-amek-green/20 shadow-sm relative flex flex-col justify-between">
+                    <p id="doaa1" class="text-lg font-bold text-gray-700 dark:text-gray-300 leading-loose relative z-10 mb-6">
                         اللهم اغفر له وارحمه، وعافه واعف عنه، وأكرم نزله، ووسع مدخله، واغسله بالماء والثَّلْج والبرد.
                     </p>
+                    <button onclick="copyDoaa('doaa1')" class="self-end flex items-center gap-2 bg-gray-100 dark:bg-amek-deep text-gray-600 dark:text-amek-gold px-4 py-2 rounded-xl text-xs font-bold hover:bg-amek-dark hover:text-white transition-all">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                        نسخ الدعاء
+                    </button>
                 </div>
-                <div class="bg-white dark:bg-amek-card p-8 rounded-3xl border border-gray-100 dark:border-amek-green/20 shadow-sm relative">
-                    <p class="text-lg font-bold text-gray-700 dark:text-gray-300 leading-loose relative z-10">
+                <div class="bg-white dark:bg-amek-card p-8 rounded-3xl border border-gray-100 dark:border-amek-green/20 shadow-sm relative flex flex-col justify-between">
+                    <p id="doaa2" class="text-lg font-bold text-gray-700 dark:text-gray-300 leading-loose relative z-10 mb-6">
                         اللهم أبدله داراً خيراً من داره، وأهلاً خيراً من أهله، وزوجاً خيراً من زوجه، وأدخله الجنة.
                     </p>
+                    <button onclick="copyDoaa('doaa2')" class="self-end flex items-center gap-2 bg-gray-100 dark:bg-amek-deep text-gray-600 dark:text-amek-gold px-4 py-2 rounded-xl text-xs font-bold hover:bg-amek-dark hover:text-white transition-all">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                        نسخ الدعاء
+                    </button>
                 </div>
-                <div class="bg-white dark:bg-amek-card p-8 rounded-3xl border border-gray-100 dark:border-amek-green/20 shadow-sm relative">
-                    <p class="text-lg font-bold text-gray-700 dark:text-gray-300 leading-loose relative z-10">
+                <div class="bg-white dark:bg-amek-card p-8 rounded-3xl border border-gray-100 dark:border-amek-green/20 shadow-sm relative flex flex-col justify-between">
+                    <p id="doaa3" class="text-lg font-bold text-gray-700 dark:text-gray-300 leading-loose relative z-10 mb-6">
                         اللهم اجعل قبره روضة من رياض الجنة، ولا تجعله حفرة من حفر النار. اللهم افسح له في قبره.
                     </p>
+                    <button onclick="copyDoaa('doaa3')" class="self-end flex items-center gap-2 bg-gray-100 dark:bg-amek-deep text-gray-600 dark:text-amek-gold px-4 py-2 rounded-xl text-xs font-bold hover:bg-amek-dark hover:text-white transition-all">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                        نسخ الدعاء
+                    </button>
                 </div>
             </div>
         </div>
@@ -456,7 +468,7 @@
             }
         });
 
-        // Audio Management
+        // Audio Management (Reliable Manual Play)
         const audio1 = document.getElementById('audio1');
         const audio2 = document.getElementById('audio2');
         const playBtn1 = document.getElementById('playBtn1');
@@ -534,25 +546,6 @@
             }
         }
 
-        // Reliable Autoplay on User Interaction
-        let hasInteracted = false;
-        function attemptAutoplay() {
-            if (hasInteracted) return;
-            hasInteracted = true;
-            playSpecificAudio(audio1);
-            window.removeEventListener('scroll', attemptAutoplay);
-            window.removeEventListener('click', attemptAutoplay);
-            window.removeEventListener('touchstart', attemptAutoplay);
-            window.removeEventListener('pointerdown', attemptAutoplay);
-            window.removeEventListener('keydown', attemptAutoplay);
-        }
-
-        window.addEventListener('scroll', attemptAutoplay, { once: true, passive: true });
-        window.addEventListener('click', attemptAutoplay, { once: true });
-        window.addEventListener('touchstart', attemptAutoplay, { once: true, passive: true });
-        window.addEventListener('pointerdown', attemptAutoplay, { once: true });
-        window.addEventListener('keydown', attemptAutoplay, { once: true });
-
         // Copy RIB
         function copyRIB() {
             const ribText = document.getElementById('ribNumber').innerText.replace(/\s/g, '');
@@ -565,6 +558,18 @@
             });
         }
 
+        // Copy Doaa
+        function copyDoaa(elementId) {
+            const text = document.getElementById(elementId).innerText.trim();
+            navigator.clipboard.writeText(text).then(() => showToast("تم نسخ الدعاء بنجاح!"))
+            .catch(() => {
+                const el = document.createElement('textarea');
+                el.value = text; document.body.appendChild(el); el.select();
+                document.execCommand('copy'); document.body.removeChild(el);
+                showToast("تم نسخ الدعاء بنجاح!");
+            });
+        }
+
         function showToast(message) {
             const toast = document.createElement('div');
             toast.textContent = message;
@@ -573,7 +578,7 @@
             setTimeout(() => toast.remove(), 3000);
         }
 
-        // Dynamic Placeholders & Reset Mosque on City Change
+        // Dynamic Placeholders for Mosque & Cemetery based on City
         const mosquePlaceholders = {
             "مراكش": "مثال: مسجد الكتبية، مسجد مولاي الحسن...",
             "الدار البيضاء": "مثال: مسجد الحسن الثاني، مسجد القدس...",
@@ -585,16 +590,34 @@
             "الجديدة": "مثال: مسجد إبراهيم الخليل..."
         };
 
+        const cemeteryPlaceholders = {
+            "مراكش": "مثال: مقبرة باب دكالة، مقبرة الإمام البوصيري...",
+            "الدار البيضاء": "مثال: مقبرة الشهداء، مقبرة الغفران...",
+            "الرباط": "مثال: مقبرة الشهداء، مقبرة سعة...",
+            "طنجة": "مثال: مقبرة المجاهدين، مقبرة الإسماعيلية...",
+            "أكادير": "مثال: مقبرة تيجكالت، المقبرة المركزية...",
+            "فاس": "مثال: مقبرة باب الفتوح...",
+            "مكناس": "مثال: مقبرة الزيتونة...",
+            "الجديدة": "مثال: مقبرة سداد..."
+        };
+
         const modalCitySelect = document.getElementById('modal_city');
         const modalMosqueInput = document.getElementById('modal_mosque');
+        const modalCemeteryInput = document.getElementById('modal_cemetery');
         const modalMosqueMapInput = document.getElementById('modal_mosque_map');
 
-        if (modalCitySelect && modalMosqueInput) {
-            modalMosqueInput.placeholder = mosquePlaceholders[modalCitySelect.value] || "اسم المسجد...";
+        if (modalCitySelect && modalMosqueInput && modalCemeteryInput) {
+            const currentCity = modalCitySelect.value;
+            modalMosqueInput.placeholder = mosquePlaceholders[currentCity] || "اسم المسجد...";
+            modalCemeteryInput.placeholder = cemeteryPlaceholders[currentCity] || "اسم المقبرة...";
+
             modalCitySelect.addEventListener('change', (e) => {
+                const city = e.target.value;
                 modalMosqueInput.value = '';
+                modalCemeteryInput.value = '';
                 if(modalMosqueMapInput) modalMosqueMapInput.value = '';
-                modalMosqueInput.placeholder = mosquePlaceholders[e.target.value] || "اسم المسجد...";
+                modalMosqueInput.placeholder = mosquePlaceholders[city] || "اسم المسجد...";
+                modalCemeteryInput.placeholder = cemeteryPlaceholders[city] || "اسم المقبرة...";
             });
         }
 
