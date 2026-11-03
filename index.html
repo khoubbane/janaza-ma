@@ -541,12 +541,14 @@
             window.removeEventListener('scroll', attemptAutoplay);
             window.removeEventListener('click', attemptAutoplay);
             window.removeEventListener('touchstart', attemptAutoplay);
+            window.removeEventListener('pointerdown', attemptAutoplay);
             window.removeEventListener('keydown', attemptAutoplay);
         }
 
-        window.addEventListener('scroll', attemptAutoplay, { once: true });
+        window.addEventListener('scroll', attemptAutoplay, { once: true, passive: true });
         window.addEventListener('click', attemptAutoplay, { once: true });
-        window.addEventListener('touchstart', attemptAutoplay, { once: true });
+        window.addEventListener('touchstart', attemptAutoplay, { once: true, passive: true });
+        window.addEventListener('pointerdown', attemptAutoplay, { once: true });
         window.addEventListener('keydown', attemptAutoplay, { once: true });
 
         // Copy RIB
