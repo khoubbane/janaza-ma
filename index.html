@@ -152,7 +152,7 @@
                     </div>
                 </div>
                 <!-- Audio Elements for specific Ayahs -->
-                <audio id="audio1" src="audio1.mp3" preload="auto"></audio>
+                <audio id="audio1" src="https://everyayah.com/data/Alafasy_128kbps/029057.mp3" preload="auto"></audio>
                 <audio id="audio2" src="audio2.mp3" preload="auto"></audio>
             </div>
             
@@ -312,7 +312,8 @@
                 <h2 class="text-2xl md:text-3xl font-black text-amek-dark dark:text-white leading-[1.8] font-tajawal mb-8">
                     الَّذِينَ إِذَا أَصَابَتْهُم مُّصِيبَةٌ<br>
                     قَالُوا إِنَّا لِلَّهِ وَإِنَّا إِلَيْهِ رَاجِعُونَ ۝<br>
-                    أُولَٰئِكَ عَلَيْهِمْ صَلَوَاتٌ مِّن رَّبِّهِمْ وَرَحْمَةٌ
+                    أُولَٰئِكَ عَلَيْهِمْ صَلَوَاتٌ مِّن رَّبِّهِمْ وَرَحْمَةٌ<br>
+                    وَأُولَٰئِكَ هُمُ الْمُهْتَدُونَ
                 </h2>
                 
                 <div class="flex items-center justify-center gap-4">
@@ -427,18 +428,27 @@
                         </select>
                     </div>
                     <div>
-                        <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">المدينة (إلزامي)</label>
-                        <select id="modal_city" class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-amek-green/40 dark:bg-amek-deep dark:text-white focus:border-amek-dark dark:focus:border-amek-gold focus:ring-2 focus:ring-amek-dark/20 outline-none transition-all text-sm font-semibold">
-                            <option value="مراكش" selected>مراكش</option>
-                            <option value="الدار البيضاء">الدار البيضاء</option>
+                        <h3 class="font-black text-lg mb-1 font-tajawal">اشترك في تنبيهات مدينتك</h3>
+                        <p class="text-sm font-semibold text-gray-600 dark:text-gray-400">توصل برسالة واتساب فور الإعلان عن جنازة جديدة.</p>
+                    </div>
+                </div>
+                <form id="notifyForm" class="flex w-full md:w-auto gap-2">
+                    <select id="notify_city" required class="bg-white dark:bg-amek-deep border border-gray-200 dark:border-amek-green/40 text-sm font-bold text-gray-700 dark:text-gray-300 px-4 py-3 rounded-xl focus:ring-2 focus:ring-amek-dark dark:focus:ring-amek-gold outline-none transition-colors">
+                        <option value="" disabled selected>المدينة</option>
+                        <option value="مراكش">مراكش</option>
+                        <option value="الدار البيضاء">الدار البيضاء</option>
                             <option value="الرباط">الرباط</option>
                             <option value="طنجة">طنجة</option>
                             <option value="أكادير">أكادير</option>
                             <option value="فاس">فاس</option>
                             <option value="مكناس">مكناس</option>
-                            <option value="الجديدة">الجديدة</option>
-                        </select>
-                    </div>
+                        <option value="الجديدة">الجديدة</option>
+                    </select>
+                    <input type="tel" id="notify_phone" placeholder="رقم الواتساب..." class="w-full md:w-56 px-4 py-3 rounded-xl border border-gray-200 dark:border-amek-green/40 dark:bg-amek-deep dark:text-white focus:ring-2 focus:ring-amek-dark dark:focus:ring-amek-gold outline-none text-sm font-bold transition-colors" required>
+                    <button type="submit" id="notify_submit" class="bg-amek-dark dark:bg-white dark:text-amek-dark text-white font-bold px-6 py-3 rounded-xl hover:bg-amek-gold dark:hover:bg-amek-gold transition-colors text-sm">تسجيل</button>
+                </form>
+            </div>
+        </div>
                     <div>
                         <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">المسجد (إلزامي)</label>
                         <input type="text" id="modal_mosque" placeholder="اسم المسجد..." class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-amek-green/40 dark:bg-amek-deep dark:text-white focus:border-amek-dark dark:focus:border-amek-gold focus:ring-2 focus:ring-amek-dark/20 outline-none transition-all text-sm font-semibold">
@@ -967,6 +977,43 @@
                     if(window.closeAddModal) window.closeAddModal();
                 } catch (error) {
                     if(window.showToast) window.showToast('حدث خطأ أثناء النشر.');
+                } finally {
+                    btn.disabled = false;
+                    btn.innerHTML = originalBtnText;
+                }
+            });
+        }
+
+        // Add Notification Subscription Logic
+        const notifyForm = document.getElementById('notifyForm');
+        if (notifyForm) {
+            notifyForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const btn = document.getElementById('notify_submit');
+                const originalBtnText = btn.innerHTML;
+                btn.disabled = true;
+                btn.innerHTML = '...';
+
+                try {
+                    const city = document.getElementById('notify_city').value;
+                    const phone = document.getElementById('notify_phone').value.trim();
+
+                    if (!city || !phone) {
+                        if(window.showToast) window.showToast('المرجو اختيار المدينة وإدخال رقم الهاتف.');
+                        return;
+                    }
+
+                    // حفظ المشترك في جدول جديد subscribers
+                    await addDoc(collection(db, "subscribers"), {
+                        city: city,
+                        phone: phone,
+                        subscribedAt: new Date().toISOString()
+                    });
+
+                    if(window.showToast) window.showToast('تم تسجيلك بنجاح! ستتوصل بإشعارات مدينتك.');
+                    notifyForm.reset();
+                } catch (error) {
+                    if(window.showToast) window.showToast('حدث خطأ أثناء التسجيل. حاول مرة أخرى.');
                 } finally {
                     btn.disabled = false;
                     btn.innerHTML = originalBtnText;
