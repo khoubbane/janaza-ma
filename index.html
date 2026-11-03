@@ -152,7 +152,7 @@
                     </div>
                 </div>
                 <!-- Audio Elements for specific Ayahs -->
-                <audio id="audio1" src="audio1.mp3" preload="auto"></audio>
+                <audio id="audio1" src="audio1.mp3" preload="auto" autoplay></audio>
                 <audio id="audio2" src="audio2.mp3" preload="auto"></audio>
             </div>
             
@@ -243,13 +243,8 @@
                     <div class="bg-white dark:bg-amek-deep p-3 rounded-full shadow-sm text-amek-gold border border-transparent dark:border-amek-green/20">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
                     </div>
-                    <div>
-                        <h3 class="font-black text-lg mb-1 font-tajawal">اشترك في تنبيهات مدينتك</h3>
-                        <p class="text-sm font-semibold text-gray-600 dark:text-gray-400">توصل برسالة واتساب فور الإعلان عن جنازة جديدة.</p>
-                    </div>
-                </div>
-                <form class="flex w-full md:w-auto gap-2" onsubmit="event.preventDefault(); showToast('تم تسجيلك بنجاح.');">
-                    <select class="bg-white dark:bg-amek-deep border border-gray-200 dark:border-amek-green/40 text-sm font-bold text-gray-700 dark:text-gray-300 px-4 py-3 rounded-xl focus:ring-2 focus:ring-amek-dark dark:focus:ring-amek-gold outline-none transition-colors">
+                <form id="notifyForm" class="flex flex-col md:flex-row w-full md:w-auto gap-2">
+                    <select id="notify_city" class="bg-white dark:bg-amek-deep border border-gray-200 dark:border-amek-green/40 text-sm font-bold text-gray-700 dark:text-gray-300 px-4 py-3 rounded-xl focus:ring-2 focus:ring-amek-dark dark:focus:ring-amek-gold outline-none transition-colors">
                         <option value="" disabled selected>المدينة</option>
                         <option value="مراكش">مراكش</option>
                         <option value="الدار البيضاء">الدار البيضاء</option>
@@ -260,8 +255,13 @@
                         <option value="مكناس">مكناس</option>
                         <option value="الجديدة">الجديدة</option>
                     </select>
-                    <input type="tel" placeholder="رقم الواتساب..." class="w-full md:w-56 px-4 py-3 rounded-xl border border-gray-200 dark:border-amek-green/40 dark:bg-amek-deep dark:text-white focus:ring-2 focus:ring-amek-dark dark:focus:ring-amek-gold outline-none text-sm font-bold transition-colors" required>
-                    <button type="submit" class="bg-amek-dark dark:bg-white dark:text-amek-dark text-white font-bold px-6 py-3 rounded-xl hover:bg-amek-gold dark:hover:bg-amek-gold transition-colors text-sm">تسجيل</button>
+                    <div class="flex items-center gap-2 w-full md:w-64" dir="ltr">
+                        <div class="bg-gray-100 dark:bg-amek-deep/60 border border-gray-200 dark:border-amek-green/40 px-4 py-3 rounded-xl text-gray-500 dark:text-gray-400 font-bold text-sm shrink-0 select-none">
+                            +212
+                        </div>
+                        <input type="tel" id="notify_phone" placeholder="6..." class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-amek-green/40 dark:bg-amek-deep dark:text-white focus:ring-2 focus:ring-amek-dark dark:focus:ring-amek-gold outline-none text-sm font-bold transition-colors tracking-widest" required oninput="let v = this.value.replace(/\D/g, ''); if(v.startsWith('0')) v = v.substring(1); this.value = v.substring(0,9);">
+                    </div>
+                    <button type="submit" id="notify_submit" class="bg-amek-dark dark:bg-white dark:text-amek-dark text-white font-bold px-6 py-3 rounded-xl hover:bg-amek-gold dark:hover:bg-amek-gold transition-colors text-sm">تسجيل</button>
                 </form>
             </div>
         </div>
@@ -450,7 +450,12 @@
                     </div>
                     <div>
                         <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">رقم هاتف العائلة (إلزامي)</label>
-                        <input type="tel" id="modal_family_phone" placeholder="06..." class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-amek-green/40 dark:bg-amek-deep dark:text-white focus:border-amek-dark dark:focus:border-amek-gold focus:ring-2 focus:ring-amek-dark/20 outline-none transition-all text-sm font-semibold" dir="ltr">
+                        <div class="flex items-center gap-2" dir="ltr">
+                            <div class="bg-gray-100 dark:bg-amek-deep/60 border border-gray-200 dark:border-amek-green/40 px-4 py-3 rounded-xl text-gray-500 dark:text-gray-400 font-bold text-sm shrink-0 select-none">
+                                +212
+                            </div>
+                            <input type="tel" id="modal_family_phone" placeholder="6..." class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-amek-green/40 dark:bg-amek-deep dark:text-white focus:border-amek-dark dark:focus:border-amek-gold focus:ring-2 focus:ring-amek-dark/20 outline-none transition-all text-sm font-semibold tracking-widest" oninput="let v = this.value.replace(/\D/g, ''); if(v.startsWith('0')) v = v.substring(1); this.value = v.substring(0,9);">
+                        </div>
                     </div>
                     <div>
                         <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">رابط المسجد في Google Maps (اختياري)</label>
@@ -612,16 +617,20 @@
                     currentAudio = audio1;
                     updateAudioUI();
                 }).catch(error => {
-                    // المتصفح منع التشغيل التلقائي، ننتظر أول ضغطة للمستخدم
+                    // المتصفح منع التشغيل التلقائي، ننتظر أول حركة للمستخدم (كليك أو سكرول)
                     const startAudioOnInteract = () => {
                         if (!currentAudio) {
                             playSpecificAudio(audio1);
                         }
+                        // إزالة المستمعين بعد أول تفاعل باش ما يبقاش يخدم الكود مرات أخرى
                         document.removeEventListener('click', startAudioOnInteract);
                         document.removeEventListener('touchstart', startAudioOnInteract);
+                        document.removeEventListener('scroll', startAudioOnInteract);
                     };
+                    // استشعار أي تفاعل من المستخدم
                     document.addEventListener('click', startAudioOnInteract, { once: true });
                     document.addEventListener('touchstart', startAudioOnInteract, { once: true });
+                    document.addEventListener('scroll', startAudioOnInteract, { once: true });
                 });
             }
         });
@@ -648,6 +657,28 @@
                 toast.classList.add('translate-y-10', 'opacity-0');
                 setTimeout(() => toast.remove(), 300);
             }, 3000);
+        }
+
+        // --- Dynamic Mosque Placeholders ---
+        const mosquePlaceholders = {
+            "مراكش": "مثال: مسجد الكتبية، مسجد مولاي الحسن بالمحاميد...",
+            "الدار البيضاء": "مثال: مسجد الحسن الثاني، مسجد القدس...",
+            "الرباط": "مثال: مسجد بدر، مسجد حسان...",
+            "طنجة": "مثال: المسجد الأعظم، مسجد السوريين...",
+            "أكادير": "مثال: مسجد محمد الخامس، مسجد لبنان...",
+            "فاس": "مثال: جامع القرويين، مسجد التاجموعتي...",
+            "مكناس": "مثال: المسجد الأعظم، مسجد محمد السادس...",
+            "الجديدة": "مثال: مسجد إبراهيم الخليل، مسجد بلحمدونية..."
+        };
+
+        const modalCitySelect = document.getElementById('modal_city');
+        const modalMosqueInput = document.getElementById('modal_mosque');
+
+        if (modalCitySelect && modalMosqueInput) {
+            modalMosqueInput.placeholder = mosquePlaceholders[modalCitySelect.value] || "اسم المسجد...";
+            modalCitySelect.addEventListener('change', (e) => {
+                modalMosqueInput.placeholder = mosquePlaceholders[e.target.value] || "اسم المسجد...";
+            });
         }
 
         // --- Modal Logic ---
@@ -905,6 +936,21 @@
 
         // Add Submission Logic
         const publicForm = document.getElementById('publicJanazaForm');
+        
+        // --- Smart Phone Validation Logic ---
+        function formatMoroccanPhone(input) {
+            let cleaned = input.replace(/\D/g, ''); // إزالة أي رموز أو مساحات
+            if (cleaned.startsWith('00212')) cleaned = cleaned.substring(5);
+            else if (cleaned.startsWith('212')) cleaned = cleaned.substring(3);
+            else if (cleaned.startsWith('0')) cleaned = cleaned.substring(1);
+            
+            // تحقق من أن الرقم المتبقي 9 أرقام ويبدأ بـ 5، 6، 7، أو 8
+            if (/^[5678]\d{8}$/.test(cleaned)) {
+                return '0' + cleaned;
+            }
+            return null;
+        }
+
         if (publicForm) {
             publicForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
@@ -927,6 +973,15 @@
                     // Manual Validation for Required Fields
                     if (!newMosque || !newCemetery || !newPhone) {
                         if(window.showToast) window.showToast('المرجو ملء جميع الحقول الإلزامية (المسجد، المقبرة، ورقم الهاتف).');
+                        btn.disabled = false;
+                        btn.innerHTML = originalBtnText;
+                        return;
+                    }
+
+                    // Smart Phone Validation
+                    const finalPhone = formatMoroccanPhone(newPhone);
+                    if (!finalPhone) {
+                        if(window.showToast) window.showToast('المرجو إدخال رقم هاتف مغربي صحيح.');
                         btn.disabled = false;
                         btn.innerHTML = originalBtnText;
                         return;
@@ -976,7 +1031,7 @@
                         city: newCity,
                         mosque: newMosque,
                         cemetery: newCemetery,
-                        family_phone: newPhone,
+                        family_phone: finalPhone,
                         mosque_map: newMosqueMap,
                         prayer_name: newPrayerName,
                         prayer_time: newPrayerTime,
@@ -1013,13 +1068,24 @@
 
                     if (!city || !phone) {
                         if(window.showToast) window.showToast('المرجو اختيار المدينة وإدخال رقم الهاتف.');
+                        btn.disabled = false;
+                        btn.innerHTML = originalBtnText;
+                        return;
+                    }
+
+                    // Smart Phone Validation
+                    const finalPhone = formatMoroccanPhone(phone);
+                    if (!finalPhone) {
+                        if(window.showToast) window.showToast('المرجو إدخال رقم هاتف مغربي صحيح للتسجيل.');
+                        btn.disabled = false;
+                        btn.innerHTML = originalBtnText;
                         return;
                     }
 
                     // حفظ المشترك في جدول جديد subscribers
                     await addDoc(collection(db, "subscribers"), {
                         city: city,
-                        phone: phone,
+                        phone: finalPhone,
                         subscribedAt: new Date().toISOString()
                     });
 
