@@ -222,19 +222,19 @@
                 <p class="text-sm font-semibold">لم يتم الإعلان عن جنائز في هذه المدينة، أو مر وقت الصلاة.</p>
             </div>
 
-            <div id="notifyBlock" class="mt-12 bg-amek-light dark:bg-amek-card rounded-3xl p-6 lg:p-8 flex flex-col md:flex-row items-center justify-between gap-6 border border-amek-green/10 dark:border-amek-green/30">
+            <div id="notifyBlock" class="mt-12 bg-amek-light dark:bg-amek-card rounded-3xl p-6 lg:p-8 flex flex-col lg:flex-row items-center justify-between gap-6 border border-amek-green/10 dark:border-amek-green/30">
                 <div class="flex items-center gap-4 text-amek-dark dark:text-white">
-                    <div class="bg-white dark:bg-amek-deep p-3 rounded-full shadow-sm text-amek-gold">
+                    <div class="bg-white dark:bg-amek-deep p-3.5 rounded-full shadow-sm text-amek-gold shrink-0">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
                     </div>
                     <div>
-                        <h3 class="font-bold text-lg font-tajawal">تنبيهات الجنائز عبر الواتساب</h3>
-                        <p class="text-xs text-gray-500 dark:text-gray-400">توصل بإشعار فوري فور إضافة إعلان جنازة في مدينتك.</p>
+                        <h3 class="font-bold text-lg font-tajawal">قنوات تنبيهات الجنائز الفورية (مجاناً)</h3>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">انضم لقنواتنا الرسمية على الواتساب أو تيليجرام للتوصل بإعلانات الجنائز فور نشرها دون الحاجة لمشاركة رقم هاتفك.</p>
                     </div>
                 </div>
-                <form id="notifyForm" class="flex flex-col md:flex-row w-full md:w-auto gap-2">
-                    <select id="notify_city" class="bg-white dark:bg-amek-deep border border-gray-200 dark:border-amek-green/40 text-sm font-bold text-gray-700 dark:text-gray-300 px-4 py-3 rounded-xl outline-none">
-                        <option value="" disabled selected>المدينة</option>
+                <div class="flex flex-col sm:flex-row items-center w-full lg:w-auto gap-3 shrink-0">
+                    <select id="channel_city" class="w-full sm:w-auto bg-white dark:bg-amek-deep border border-gray-200 dark:border-amek-green/40 text-sm font-bold text-gray-700 dark:text-gray-300 px-4 py-3.5 rounded-xl outline-none">
+                        <option value="all">جميع المدن (القناة العامة)</option>
                         <option value="مراكش">مراكش</option>
                         <option value="الدار البيضاء">الدار البيضاء</option>
                         <option value="الرباط">الرباط</option>
@@ -244,14 +244,13 @@
                         <option value="مكناس">مكناس</option>
                         <option value="الجديدة">الجديدة</option>
                     </select>
-                    <div class="flex items-center gap-2 w-full md:w-64" dir="ltr">
-                        <div class="bg-gray-100 dark:bg-amek-deep/60 border border-gray-200 dark:border-amek-green/40 px-4 py-3 rounded-xl text-gray-500 dark:text-gray-400 font-bold text-sm shrink-0 select-none">
-                            +212
-                        </div>
-                        <input type="tel" id="notify_phone" placeholder="6..." class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-amek-green/40 dark:bg-amek-deep dark:text-white outline-none text-sm font-bold tracking-widest" required oninput="let v = this.value.replace(/\D/g, ''); if(v.startsWith('0')) v = v.substring(1); this.value = v.substring(0,9);">
-                    </div>
-                    <button type="submit" id="notify_submit" class="bg-amek-dark dark:bg-white dark:text-amek-dark text-white font-bold px-6 py-3 rounded-xl hover:bg-amek-gold transition-colors text-sm">تسجيل</button>
-                </form>
+                    <button onclick="joinWhatsAppChannel()" class="w-full sm:w-auto bg-[#25D366] hover:bg-[#128C7E] text-white font-bold px-5 py-3.5 rounded-xl transition-all text-sm flex items-center justify-center gap-2 shadow-sm">
+                        <span>قناة الواتساب</span>
+                    </button>
+                    <button onclick="joinTelegramChannel()" class="w-full sm:w-auto bg-[#0088cc] hover:bg-[#0077b5] text-white font-bold px-5 py-3.5 rounded-xl transition-all text-sm flex items-center justify-center gap-2 shadow-sm">
+                        <span>قناة تيليجرام</span>
+                    </button>
+                </div>
             </div>
         </div>
     </section>
@@ -658,26 +657,43 @@
         const EXPIRY_MS = EXPIRY_HOURS * 60 * 60 * 1000;
 
         // =========================================================================
-        // 🟢 إعدادات الربط مع الواتساب (WhatsApp API - UltraMsg)
-        // لتفعيل الإرسال الحقيقي للهواتف:
-        // 1. افتح حساباً مجانياً في https://ultramsg.com واربط هاتفك بـ QR Code
-        // 2. انسخ الـ Instance ID والـ Token وضعهما مكان الكلمات أسفله:
+        // 🟢 1. إعدادات بوت التيليجرام المجاني (Telegram Bot API) - نشر أوتوماتيكي 100%
         // =========================================================================
-        const ULTRAMSG_INSTANCE_ID = "YOUR_INSTANCE_ID"; // ضع هنا الـ Instance ID (مثال: instance98765)
-        const ULTRAMSG_TOKEN = "YOUR_TOKEN";             // ضع هنا الـ Token الخاص بك
+        const TELEGRAM_BOT_TOKEN = "YOUR_TELEGRAM_BOT_TOKEN"; // ضع هنا التوكن الذي يعطيك إياه @BotFather
+        const TELEGRAM_CHAT_ID = "@janaza_ma";                // معرف قناتك على تيليجرام (تبدأ بـ @)
 
-        async function sendWhatsAppNotifications(janazaData) {
+        // =========================================================================
+        // 🟢 2. روابط قنوات الواتساب وتيليجرام (WhatsApp & Telegram Channels)
+        // يمكنك وضع رابط قناة واحدة عامة، أو رابط قناة خاصة بكل مدينة:
+        // =========================================================================
+        const WHATSAPP_CHANNELS = {
+            "all": "https://whatsapp.com/channel/YOUR_CHANNEL_LINK",
+            "مراكش": "https://whatsapp.com/channel/YOUR_CHANNEL_LINK",
+            "الدار البيضاء": "https://whatsapp.com/channel/YOUR_CHANNEL_LINK"
+        };
+
+        const TELEGRAM_CHANNELS = {
+            "all": "https://t.me/janaza_ma"
+        };
+
+        window.joinWhatsAppChannel = function() {
+            const city = document.getElementById('channel_city').value;
+            const link = WHATSAPP_CHANNELS[city] || WHATSAPP_CHANNELS["all"];
+            if (link.includes("YOUR_CHANNEL_LINK")) {
+                showToast("سيتم تفعيل رابط قناة الواتساب قريباً!");
+                return;
+            }
+            window.open(link, '_blank');
+        };
+
+        window.joinTelegramChannel = function() {
+            const city = document.getElementById('channel_city').value;
+            const link = TELEGRAM_CHANNELS[city] || TELEGRAM_CHANNELS["all"];
+            window.open(link, '_blank');
+        };
+
+        async function sendTelegramNotification(janazaData) {
             try {
-                // 1. جلب المشتركين المهتمين بهذه المدينة فقط
-                const q = query(collection(db, "subscribers"), where("city", "==", janazaData.city));
-                const querySnapshot = await getDocs(q);
-                
-                if (querySnapshot.empty) {
-                    console.log("لا يوجد مشتركون في مدينة " + janazaData.city);
-                    return;
-                }
-
-                // 2. تجهيز نص رسالة الواتساب والروابط الذكية
                 const deceasedName = janazaData.name && janazaData.name.trim() !== '' 
                     ? janazaData.name 
                     : (janazaData.gender === 'female' ? 'أمة الله (رحمها الله)' : 'عبد الله (رحمه الله)');
@@ -689,38 +705,36 @@
                     ? janazaData.mosque_map 
                     : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(mosqueQuery)}`;
 
+                let cleanCemetery = janazaData.cemetery.replace(/مقبرة|المقبرة|cimetière|cimetiere/gi, '').trim();
+                const cemeteryQuery = `مقبرة ${cleanCemetery} ${janazaData.city} المغرب`;
+                const cemeteryLink = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(cemeteryQuery)}`;
+
                 const message = `🕊️ *إعلان جنازة بمدينة ${janazaData.city}* 🕊️\n\n` +
                                 `👤 *المتوفى:* ${deceasedName}\n` +
                                 `🕌 *المسجد:* مسجد ${cleanMosque || janazaData.mosque}\n` +
-                                `🪦 *المقبرة:* مقبرة ${janazaData.cemetery}\n` +
+                                `🪦 *المقبرة:* مقبرة ${cleanCemetery || janazaData.cemetery}\n` +
                                 `🕒 *موعد الصلاة:* ${janazaData.prayer_name} (${dayStr})\n\n` +
-                                `📍 *موقع المسجد على الخريطة:*\n${mosqueLink}\n\n` +
+                                `📍 [موقع المسجد على الخريطة](${mosqueLink})\n` +
+                                `📍 [موقع المقبرة على الخريطة](${cemeteryLink})\n\n` +
                                 `نسألكم الدعاء بالرحمة والمغفرة.\n🌐 *منصة Janaza.ma*`;
 
-                // التحقق من إدخال مفاتيح الـ API
-                if (ULTRAMSG_INSTANCE_ID === "YOUR_INSTANCE_ID" || ULTRAMSG_TOKEN === "YOUR_TOKEN") {
-                    console.log(`سيتم إرسال هذا الإشعار لـ (${querySnapshot.size}) مشترك في ${janazaData.city}:\n`, message);
+                if (TELEGRAM_BOT_TOKEN === "YOUR_TELEGRAM_BOT_TOKEN") {
+                    console.log("رسالة التيليجرام جاهزة للإرسال (يرجى وضع التوكن لتفعيلها):\n", message);
                     return;
                 }
 
-                // 3. إرسال الرسالة لكل مشترك عبر API
-                querySnapshot.forEach(async (docSnap) => {
-                    const sub = docSnap.data();
-                    // تحويل الرقم من 06... إلى +2126...
-                    const intlPhone = "+212" + sub.phone.substring(1);
-                    
-                    await fetch(`https://api.ultramsg.com/${ULTRAMSG_INSTANCE_ID}/messages/chat`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                        body: new URLSearchParams({
-                            token: ULTRAMSG_TOKEN,
-                            to: intlPhone,
-                            body: message
-                        })
-                    });
+                await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        chat_id: TELEGRAM_CHAT_ID,
+                        text: message,
+                        parse_mode: 'Markdown',
+                        disable_web_page_preview: true
+                    })
                 });
             } catch (err) {
-                console.error("خطأ أثناء إرسال إشعارات الواتساب:", err);
+                console.error("خطأ أثناء إرسال إشعار التيليجرام:", err);
             }
         }
 
@@ -786,8 +800,8 @@
                 try {
                     await addDoc(collection(db, "janazat"), newJanazaData);
                     
-                    // تشغيل إشعارات الواتساب أوتوماتيكياً لمشتركي هذه المدينة
-                    sendWhatsAppNotifications(newJanazaData);
+                    // نشر الإعلان أوتوماتيكياً في قناة التيليجرام
+                    sendTelegramNotification(newJanazaData);
 
                     closeAddModal();
                     publicJanazaForm.reset();
@@ -798,58 +812,6 @@
                 } finally {
                     submitBtn.disabled = false;
                     submitBtn.innerText = 'نشر الإعلان';
-                }
-            });
-        }
-
-        // كود التسجيل في إشعارات الواتساب (مع منع تكرار الرقم في نفس المدينة)
-        const notifyForm = document.getElementById('notifyForm');
-        if (notifyForm) {
-            notifyForm.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                const submitBtn = document.getElementById('notify_submit');
-                const city = document.getElementById('notify_city').value;
-                const phone = document.getElementById('notify_phone').value;
-                
-                if (!city) {
-                    showToast("المرجو اختيار المدينة أولاً");
-                    return;
-                }
-                if (phone.length !== 9) {
-                    showToast("المرجو إدخال رقم هاتف صحيح (9 أرقام)");
-                    return;
-                }
-
-                submitBtn.disabled = true;
-                submitBtn.innerText = '...';
-
-                const formattedPhone = '0' + phone;
-
-                try {
-                    // التأكد من عدم تسجيل نفس الرقم في نفس المدينة مسبقاً
-                    const q = query(collection(db, "subscribers"), where("city", "==", city), where("phone", "==", formattedPhone));
-                    const existing = await getDocs(q);
-
-                    if (!existing.empty) {
-                        showToast("هذا الرقم مسجل مسبقاً في إشعارات مدينة " + city);
-                        submitBtn.disabled = false;
-                        submitBtn.innerText = 'تسجيل';
-                        return;
-                    }
-
-                    await addDoc(collection(db, "subscribers"), {
-                        city: city,
-                        phone: formattedPhone,
-                        createdAt: new Date().toISOString()
-                    });
-                    notifyForm.reset();
-                    showToast("تم تسجيلك بنجاح لتلقي إشعارات " + city);
-                } catch (err) {
-                    console.error(err);
-                    showToast("حدث خطأ أثناء التسجيل.");
-                } finally {
-                    submitBtn.disabled = false;
-                    submitBtn.innerText = 'تسجيل';
                 }
             });
         }
