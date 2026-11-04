@@ -774,7 +774,8 @@
             allJanazat.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
             applyFilters();
         }, (error) => {
-            janazatCardsContainer.innerHTML = '<p class="text-center text-red-500 font-bold py-10">تعذر تحميل الإعلانات.</p>';
+            console.error("Firebase Error:", error);
+            janazatCardsContainer.innerHTML = '<p class="text-center text-red-500 font-bold py-10">تعذر تحميل الإعلانات. تأكد من إعدادات الصلاحيات (Rules) في Firebase.</p>';
         });
 
         function applyFilters() {
@@ -782,16 +783,21 @@
             const todayDate = new Date();
 
             filteredJanazat = allJanazat.filter(j => {
+                // إخفاء الإعلان فقط إذا مر عليه أكثر من 6 ساعات بعد وقت الصلاة المحدد
                 if (j.prayer_time) {
                     const prayerTimeMs = new Date(j.prayer_time).getTime();
-                    if (now > (prayerTimeMs + EXPIRY_MS)) return false;
+                    if (!isNaN(prayerTimeMs) && now > (prayerTimeMs + EXPIRY_MS)) {
+                        return false;
+                    }
                 }
                 if (currentCity !== 'all' && j.city !== currentCity) return false;
-                if (j.prayer_time) {
+                if (j.prayer_time && currentDay !== 'all') {
                     const jDate = new Date(j.prayer_time);
-                    const isTomorrow = jDate.getDate() !== todayDate.getDate() || jDate.getMonth() !== todayDate.getMonth();
-                    const dayStr = isTomorrow ? 'غداً' : 'اليوم';
-                    if (currentDay !== 'all' && dayStr !== currentDay) return false;
+                    if (!isNaN(jDate.getTime())) {
+                        const isTomorrow = jDate.getDate() !== todayDate.getDate() || jDate.getMonth() !== todayDate.getMonth();
+                        const dayStr = isTomorrow ? 'غداً' : 'اليوم';
+                        if (dayStr !== currentDay) return false;
+                    }
                 }
                 return true;
             });
@@ -877,20 +883,22 @@
             const phone = data.family_phone || '';
             
             // تنظيف اسم المسجد وإضافة كلمة مسجد أوتوماتيكياً لتفادي المقاهي والأماكن الأخرى
-            let cleanMosque = mosque.replace(/مسجد|جامع|الجامع|المسجد/gi, '').trim();
+            let cleanMosque = mosque.replace(/مسجد|جامع|الجامع|المسجد|mosquée|mosquee/gi, '').trim();
             const mosqueQuery = `مسجد ${cleanMosque} ${city} المغرب`;
 
             // تنظيف اسم المقبرة وإضافة كلمة مقبرة أوتوماتيكياً
-            let cleanCemetery = cemetery.replace(/مقبرة|المقبرة/gi, '').trim();
+            let cleanCemetery = cemetery.replace(/مقبرة|المقبرة|cimetière|cimetiere/gi, '').trim();
             const cemeteryQuery = `مقبرة ${cleanCemetery} ${city} المغرب`;
             
             const mosqueMapLink = (data.mosque_map && data.mosque_map.trim() !== '') 
                 ? data.mosque_map 
-                : `https://maps.google.com/?q=${encodeURIComponent(mosqueQuery)}`;
+                : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(mosqueQuery)}`;
+
+            const cemeteryMapLink = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(cemeteryQuery)}`;
 
             const dateObj = new Date(prayerTime);
             const today = new Date();
-            const isTomorrow = dateObj.getDate() !== today.getDate() || dateObj.getMonth() !== today.getMonth();
+            const isTomorrow = !isNaN(dateObj.getTime()) && (dateObj.getDate() !== today.getDate() || dateObj.getMonth() !== today.getMonth());
             const dayText = isTomorrow ? 'غداً' : 'اليوم';
             
             const genderColor = gender === 'female' ? 'pink' : 'gray';
@@ -917,16 +925,19 @@
                         <h3 class="text-xl font-black text-amek-dark dark:text-white mb-1 font-tajawal">${title}</h3>
                         <p class="text-gray-500 dark:text-gray-400 text-sm font-semibold mb-4">${subTitle}</p>
                         <div class="flex flex-wrap gap-3 text-xs font-bold text-gray-700 dark:text-gray-300">
-                            <div class="flex items-center gap-1.5 bg-gray-50 dark:bg-amek-deep/60 px-3 py-2 rounded-lg">${city}</div>
-                            <div class="flex items-center gap-1.5 bg-gray-50 dark:bg-amek-deep/60 px-3 py-2 rounded-lg">${mosque}</div>
-                            <div class="flex items-center gap-1.5 bg-gray-50 dark:bg-amek-deep/60 px-3 py-2 rounded-lg">${cemetery}</div>
+                            <div class="flex items-center gap-1.5 bg-gray-50 dark:bg-amek-deep/60 px-3 py-2 rounded-lg">📍 ${city}</div>
+                            <div class="flex items-center gap-1.5 bg-gray-50 dark:bg-amek-deep/60 px-3 py-2 rounded-lg">🕌 المسجد: ${cleanMosque || mosque}</div>
+                            <div class="flex items-center gap-1.5 bg-gray-50 dark:bg-amek-deep/60 px-3 py-2 rounded-lg">🪦 المقبرة: ${cleanCemetery || cemetery}</div>
                         </div>
                     </div>
                     <div class="flex flex-row lg:flex-col gap-2 shrink-0">
                         <a href="${mosqueMapLink}" target="_blank" class="flex-1 lg:w-36 bg-amek-dark dark:bg-white dark:text-amek-dark text-white text-xs font-bold py-2.5 rounded-xl flex items-center justify-center gap-2 text-center shadow-sm">موقع المسجد</a>
+                        <a href="${cemeteryMapLink}" target="_blank" class="flex-1 lg:w-36 bg-amek-light dark:bg-amek-deep text-amek-dark dark:text-amek-gold border border-amek-green/20 text-xs font-bold py-2.5 rounded-xl flex items-center justify-center gap-2 text-center shadow-sm">موقع المقبرة</a>
                         <a href="tel:${phone}" class="flex-1 lg:w-36 bg-white dark:bg-amek-deep border border-gray-200 dark:border-amek-green/40 text-gray-700 dark:text-gray-300 text-xs font-bold py-2.5 rounded-xl flex items-center justify-center gap-2 text-center">رقم التعزية</a>
                     </div>
                 </div>
             `;
         }
-// ... existing code ... -->
+    </script>
+</body>
+</html>
