@@ -131,10 +131,10 @@
                     </div>
 
                     <h2 class="text-2xl md:text-[26px] font-black text-amek-dark dark:text-white leading-[1.8] text-center font-tajawal mb-10">
-                        كُلُّ نَفْسٍ ذَائِقَةُ الْمَوْتِ ۖ<br>
-                        ثُمَّ إِلَيْنَا تُرْجَعُونَ ۝<br>
-                        وَالَّذِينَ آمَنُوا وَعَمِلُوا الصَّالِحَاتِ<br>
-                        لَنُبَوِّئَنَّهُم مِّنَ الْجَنَّةِ غُرَفًا
+                        كُلُّ نَفْسٍ ذَائِقَةُ الْمَوْتِ ۖ<br>
+                        ثُمَّ إِلَيْنَا تُرْجَعُونَ ۝<br>
+                        وَالَّذِينَ آمَنُوا وَعَمِلُوا الصَّالِحَاتِ<br>
+                        لَنُبَوِّئَنَّهُم مِّنَ الْجَنَّةِ غُرَفًا
                     </h2>
 
                     <div class="flex items-end justify-between">
@@ -451,12 +451,10 @@
 
         function setThemeIcons() {
             if (document.documentElement.classList.contains('dark')) {
-                // في الوضع الليلي: نظهر أيقونة الشمس للتحويل إلى النهاري
                 themeToggleLightIcon.classList.remove('hidden');
                 themeToggleDarkIcon.classList.add('hidden');
                 themeToggleBtn.setAttribute('title', 'تفعيل الوضع النهاري');
             } else {
-                // في الوضع النهاري: نظهر أيقونة الهلال للتحويل إلى الليلي
                 themeToggleDarkIcon.classList.remove('hidden');
                 themeToggleLightIcon.classList.add('hidden');
                 themeToggleBtn.setAttribute('title', 'تفعيل الوضع الليلي');
@@ -661,22 +659,10 @@
         const EXPIRY_MS = EXPIRY_HOURS * 60 * 60 * 1000;
 
         // =========================================================================
-        // 🟢 1. إعدادات بوت التيليجرام المجاني (Telegram Bot API) - نشر أوتوماتيكي 100%
+        // 🟢 1. إعدادات بوت التيليجرام المجاني (قناة موحدة فقط مع الهاشتاجات)
         // =========================================================================
-        const TELEGRAM_BOT_TOKEN = "9233222021:AAGenuzzBFZHxS6mys85dz2eQM2eiy1fHWE"; // التوكن المفعل
-        
-        // معرفات القنوات حسب المدينة (يمكنك إنشاء قناة لكل مدينة أو استخدام القناة العامة)
-        const TELEGRAM_CITY_CHAT_IDS = {
-            "all": "@Janaza_ma",
-            "مراكش": "@Janaza_ma",         // إذا أنشأت قناة خاصة بمراكش ضع معرفها هنا مثل @Janaza_Marrakech
-            "الدار البيضاء": "@Janaza_ma", // مثال: @Janaza_Casa
-            "الرباط": "@Janaza_ma",
-            "طنجة": "@Janaza_ma",
-            "أكادير": "@Janaza_ma",
-            "فاس": "@Janaza_ma",
-            "مكناس": "@Janaza_ma",
-            "الجديدة": "@Janaza_ma"
-        };
+        const TELEGRAM_BOT_TOKEN = "9233222021:AAGenuzzBFZHxS6mys85dz2eQM2eiy1fHWE";
+        const TELEGRAM_CHAT_ID = "@Janaza_ma"; 
 
         // =========================================================================
         // 🟢 2. روابط قنوات الواتساب وتيليجرام للانضمام من الموقع
@@ -720,6 +706,10 @@
                 const deceasedName = janazaData.name && janazaData.name.trim() !== '' 
                     ? janazaData.name 
                     : (janazaData.gender === 'female' ? 'أمة الله (رحمها الله)' : 'عبد الله (رحمه الله)');
+                
+                // حساب اليوم الدقيق لإرساله في تيليجرام
+                const prayerDateObj = new Date(janazaData.prayer_time);
+                const formattedDate = prayerDateObj.toLocaleDateString('ar-MA', { day: '2-digit', month: '2-digit', year: 'numeric' });
                 const dayStr = janazaData.prayer_day === 'tomorrow' ? 'غداً' : 'اليوم';
                 
                 let cleanMosque = janazaData.mosque.replace(/مسجد|جامع|الجامع|المسجد|mosquée|mosquee/gi, '').trim();
@@ -737,40 +727,33 @@
                 const cemeteryLine = hasCemetery ? `🪦 *المقبرة:* مقبرة ${cleanCemetery || janazaData.cemetery}\n` : '';
                 const cemeteryMapLine = hasCemetery ? `📍 [موقع المقبرة على الخريطة](${cemeteryLink})\n` : '';
 
+                // رسالة تيليجرام محسنة مع التاريخ الدقيق والهاشتاج
                 const message = `${cityHashtag}\n` +
                                 `🕊️ *إعلان جنازة بمدينة ${janazaData.city}* 🕊️\n\n` +
                                 `👤 *المتوفى:* ${deceasedName}\n` +
                                 `🕌 *المسجد:* مسجد ${cleanMosque || janazaData.mosque}\n` +
                                 cemeteryLine +
-                                `🕒 *موعد الصلاة:* ${janazaData.prayer_name} (${dayStr})\n\n` +
+                                `🕒 *موعد الصلاة:* ${janazaData.prayer_name} (${dayStr} - ${formattedDate})\n\n` +
                                 `📍 [موقع المسجد على الخريطة](${mosqueLink})\n` +
                                 cemeteryMapLine + `\n` +
                                 `نسألكم الدعاء بالرحمة والمغفرة.\n🌐 *منصة Janaza.ma*`;
 
-                // إرسال للقناة العامة + قناة المدينة المخصصة (إن كانت مختلفة)
-                const targetChats = new Set([TELEGRAM_CITY_CHAT_IDS["all"]]);
-                if (TELEGRAM_CITY_CHAT_IDS[janazaData.city]) {
-                    targetChats.add(TELEGRAM_CITY_CHAT_IDS[janazaData.city]);
-                }
+                const response = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        chat_id: TELEGRAM_CHAT_ID,
+                        text: message,
+                        parse_mode: 'Markdown',
+                        disable_web_page_preview: true
+                    })
+                });
 
-                for (const chatId of targetChats) {
-                    const response = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            chat_id: chatId,
-                            text: message,
-                            parse_mode: 'Markdown',
-                            disable_web_page_preview: true
-                        })
-                    });
-
-                    const result = await response.json();
-                    if (result.ok) {
-                        console.log(`✅ تم نشر الإعلان في قناة التيليجرام (${chatId}) بنجاح!`);
-                    } else {
-                        console.error("⚠️ تنبيه من تيليجرام (تأكد من إضافة البوت كـ Admin في القناة):", result.description);
-                    }
+                const result = await response.json();
+                if (result.ok) {
+                    console.log(`✅ تم نشر الإعلان في قناة التيليجرام (${TELEGRAM_CHAT_ID}) بنجاح!`);
+                } else {
+                    console.error("⚠️ تنبيه من تيليجرام:", result.description);
                 }
             } catch (err) {
                 console.error("خطأ أثناء إرسال إشعار التيليجرام:", err);
@@ -872,24 +855,37 @@
             janazatCardsContainer.innerHTML = '<p class="text-center text-red-500 font-bold py-10">تعذر تحميل الإعلانات. تأكد من إعدادات الصلاحيات (Rules) في Firebase.</p>';
         });
 
+        // 🟢 نظام التحديث الدقيق لمنتصف الليل والفلترة
         function applyFilters() {
-            const now = new Date().getTime();
-            const todayDate = new Date();
+            const now = new Date();
+            // الحصول على وقت بداية اليوم الحالي (منتصف الليل 00:00:00)
+            const todayDateMs = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
 
             filteredJanazat = allJanazat.filter(j => {
                 // إخفاء الإعلان فقط إذا مر عليه أكثر من 6 ساعات بعد وقت الصلاة المحدد
                 if (j.prayer_time) {
                     const prayerTimeMs = new Date(j.prayer_time).getTime();
-                    if (!isNaN(prayerTimeMs) && now > (prayerTimeMs + EXPIRY_MS)) {
+                    if (!isNaN(prayerTimeMs) && now.getTime() > (prayerTimeMs + EXPIRY_MS)) {
                         return false;
                     }
                 }
+
+                // فلتر المدينة
                 if (currentCity !== 'all' && j.city !== currentCity) return false;
+                
+                // فلتر اليوم (اليوم / غداً) بناءً على المقارنة الدقيقة بمنتصف الليل
                 if (j.prayer_time && currentDay !== 'all') {
                     const jDate = new Date(j.prayer_time);
                     if (!isNaN(jDate.getTime())) {
-                        const isTomorrow = jDate.getDate() !== todayDate.getDate() || jDate.getMonth() !== todayDate.getMonth();
-                        const dayStr = isTomorrow ? 'غداً' : 'اليوم';
+                        const prayerDateOnly = new Date(jDate.getFullYear(), jDate.getMonth(), jDate.getDate()).getTime();
+                        let dayStr = '';
+                        if (prayerDateOnly === todayDateMs) {
+                            dayStr = 'اليوم';
+                        } else if (prayerDateOnly > todayDateMs) {
+                            dayStr = 'غداً';
+                        } else {
+                            dayStr = 'أمس'; // الإعلانات القديمة ستُحذف أصلاً بفضل قانون الـ 6 ساعات
+                        }
                         if (dayStr !== currentDay) return false;
                     }
                 }
@@ -977,11 +973,9 @@
             const hasCemetery = cemetery.trim() !== '';
             const phone = data.family_phone || '';
             
-            // تنظيف اسم المسجد وإضافة كلمة مسجد أوتوماتيكياً لتفادي المقاهي والأماكن الأخرى
             let cleanMosque = mosque.replace(/مسجد|جامع|الجامع|المسجد|mosquée|mosquee/gi, '').trim();
             const mosqueQuery = `مسجد ${cleanMosque} ${city} المغرب`;
 
-            // تنظيف اسم المقبرة وإضافة كلمة مقبرة أوتوماتيكياً (إذا كانت محددة)
             let cleanCemetery = hasCemetery ? cemetery.replace(/مقبرة|المقبرة|cimetière|cimetiere/gi, '').trim() : '';
             const cemeteryQuery = `مقبرة ${cleanCemetery} ${city} المغرب`;
             
@@ -991,10 +985,23 @@
 
             const cemeteryMapLink = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(cemeteryQuery)}`;
 
+            // 🟢 التحقق الدقيق من تاريخ الجنازة (اليوم / غداً / أمس) مع التاريخ
             const dateObj = new Date(prayerTime);
             const today = new Date();
-            const isTomorrow = !isNaN(dateObj.getTime()) && (dateObj.getDate() !== today.getDate() || dateObj.getMonth() !== today.getMonth());
-            const dayText = isTomorrow ? 'غداً' : 'اليوم';
+            const todayDateMs = new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime();
+            const prayerDateOnly = new Date(dateObj.getFullYear(), dateObj.getMonth(), dateObj.getDate()).getTime();
+            
+            let dayText = '';
+            if (prayerDateOnly === todayDateMs) {
+                dayText = 'اليوم';
+            } else if (prayerDateOnly > todayDateMs) {
+                dayText = 'غداً';
+            } else {
+                dayText = 'أمس';
+            }
+            
+            // تاريخ منسق: 05/11/2026
+            const formattedDate = dateObj.toLocaleDateString('ar-MA', { day: '2-digit', month: '2-digit', year: 'numeric' });
             
             const genderColor = gender === 'female' ? 'pink' : 'gray';
             const genderText = gender === 'female' ? 'متوفاة (امرأة)' : 'متوفى (رجل)';
@@ -1003,14 +1010,14 @@
             const title = isAnonymous ? (gender === 'female' ? 'رحمها الله وغفر لها' : 'رحمه الله وغفر له') : `المرحوم: ${name}`;
             const subTitle = isAnonymous ? 'فضلوا عدم ذكر الإسم، نسألكم الدعاء له بالرحمة.' : 'إن لله وإن إليه راجعون، نسألكم الدعاء بالمغفرة.';
 
-            // تجهيز رسالة المشاركة المباشرة عبر الواتساب
+            // رسالة المشاركة عبر الواتساب
             const deceasedShareName = isAnonymous ? (gender === 'female' ? 'أمة الله (رحمها الله)' : 'عبد الله (رحمه الله)') : name;
             const shareCemeteryLine = hasCemetery ? `🪦 *المقبرة:* مقبرة ${cleanCemetery || cemetery}\n` : '';
             const shareText = `🕊️ *إعلان جنازة بمدينة ${city}* 🕊️\n\n` +
                               `👤 *المتوفى:* ${deceasedShareName}\n` +
                               `🕌 *المسجد:* مسجد ${cleanMosque || mosque}\n` +
                               shareCemeteryLine +
-                              `🕒 *موعد الصلاة:* ${prayerName} (${dayText})\n\n` +
+                              `🕒 *موعد الصلاة:* ${prayerName} (${dayText} - ${formattedDate})\n\n` +
                               `📍 *موقع المسجد:* ${mosqueMapLink}\n\n` +
                               `نسألكم الدعاء بالرحمة والمغفرة.`;
             const whatsappShareUrl = `https://wa.me/?text=${encodeURIComponent(shareText)}`;
@@ -1033,7 +1040,7 @@
                         </span>
                         <div>
                             <p class="font-black text-amek-dark dark:text-white text-lg font-tajawal">${prayerName}</p>
-                            <p class="text-sm font-bold text-amek-gold">${dayText}</p>
+                            <p class="text-sm font-bold text-amek-gold">${dayText} <span class="text-[10px] text-gray-500 dark:text-gray-400 ml-1">(${formattedDate})</span></p>
                         </div>
                     </div>
                     <div class="flex-1">
@@ -1056,6 +1063,14 @@
                 </div>
             `;
         }
+
+        // 🟢 تفعيل تحديث الشاشة برمجياً كل دقيقة (لإخفاء الإعلانات المنتهية وتحويل غداً إلى اليوم عند منتصف الليل)
+        setInterval(() => {
+            if (allJanazat.length > 0) {
+                applyFilters();
+            }
+        }, 60000); 
+
     </script>
 </body>
 </html>
