@@ -396,8 +396,8 @@
                         <input type="text" id="modal_mosque" placeholder="اسم المسجد..." class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-amek-green/40 dark:bg-amek-deep dark:text-white outline-none text-sm font-semibold">
                     </div>
                     <div>
-                        <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">المقبرة للدفن (إلزامي)</label>
-                        <input type="text" id="modal_cemetery" placeholder="اسم المقبرة..." class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-amek-green/40 dark:bg-amek-deep dark:text-white outline-none text-sm font-semibold">
+                        <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">المقبرة للدفن (اختياري)</label>
+                        <input type="text" id="modal_cemetery" placeholder="اسم المقبرة (اتركه فارغاً إن لم تكن متأكداً)..." class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-amek-green/40 dark:bg-amek-deep dark:text-white outline-none text-sm font-semibold">
                     </div>
                     <div>
                         <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">رقم هاتف العائلة (إلزامي)</label>
@@ -451,11 +451,15 @@
 
         function setThemeIcons() {
             if (document.documentElement.classList.contains('dark')) {
+                // في الوضع الليلي: نظهر أيقونة الشمس للتحويل إلى النهاري
+                themeToggleLightIcon.classList.remove('hidden');
+                themeToggleDarkIcon.classList.add('hidden');
+                themeToggleBtn.setAttribute('title', 'تفعيل الوضع النهاري');
+            } else {
+                // في الوضع النهاري: نظهر أيقونة الهلال للتحويل إلى الليلي
                 themeToggleDarkIcon.classList.remove('hidden');
                 themeToggleLightIcon.classList.add('hidden');
-            } else {
-                themeToggleDarkIcon.classList.add('hidden');
-                themeToggleLightIcon.classList.remove('hidden');
+                themeToggleBtn.setAttribute('title', 'تفعيل الوضع الليلي');
             }
         }
         setThemeIcons();
@@ -660,10 +664,22 @@
         // 🟢 1. إعدادات بوت التيليجرام المجاني (Telegram Bot API) - نشر أوتوماتيكي 100%
         // =========================================================================
         const TELEGRAM_BOT_TOKEN = "9233222021:AAGenuzzBFZHxS6mys85dz2eQM2eiy1fHWE"; // التوكن المفعل
-        const TELEGRAM_CHAT_ID = "@Janaza_ma";                // معرف قناتك الرسمية
+        
+        // معرفات القنوات حسب المدينة (يمكنك إنشاء قناة لكل مدينة أو استخدام القناة العامة)
+        const TELEGRAM_CITY_CHAT_IDS = {
+            "all": "@Janaza_ma",
+            "مراكش": "@Janaza_ma",         // إذا أنشأت قناة خاصة بمراكش ضع معرفها هنا مثل @Janaza_Marrakech
+            "الدار البيضاء": "@Janaza_ma", // مثال: @Janaza_Casa
+            "الرباط": "@Janaza_ma",
+            "طنجة": "@Janaza_ma",
+            "أكادير": "@Janaza_ma",
+            "فاس": "@Janaza_ma",
+            "مكناس": "@Janaza_ma",
+            "الجديدة": "@Janaza_ma"
+        };
 
         // =========================================================================
-        // 🟢 2. روابط قنوات الواتساب وتيليجرام (WhatsApp & Telegram Channels)
+        // 🟢 2. روابط قنوات الواتساب وتيليجرام للانضمام من الموقع
         // =========================================================================
         const WHATSAPP_CHANNELS = {
             "all": "https://whatsapp.com/channel/YOUR_CHANNEL_LINK",
@@ -672,7 +688,15 @@
         };
 
         const TELEGRAM_CHANNELS = {
-            "all": "https://t.me/Janaza_ma"
+            "all": "https://t.me/Janaza_ma",
+            "مراكش": "https://t.me/Janaza_ma",
+            "الدار البيضاء": "https://t.me/Janaza_ma",
+            "الرباط": "https://t.me/Janaza_ma",
+            "طنجة": "https://t.me/Janaza_ma",
+            "أكادير": "https://t.me/Janaza_ma",
+            "فاس": "https://t.me/Janaza_ma",
+            "مكناس": "https://t.me/Janaza_ma",
+            "الجديدة": "https://t.me/Janaza_ma"
         };
 
         window.joinWhatsAppChannel = function() {
@@ -704,35 +728,49 @@
                     ? janazaData.mosque_map 
                     : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(mosqueQuery)}`;
 
-                let cleanCemetery = janazaData.cemetery.replace(/مقبرة|المقبرة|cimetière|cimetiere/gi, '').trim();
+                const hasCemetery = janazaData.cemetery && janazaData.cemetery.trim() !== '';
+                let cleanCemetery = hasCemetery ? janazaData.cemetery.replace(/مقبرة|المقبرة|cimetière|cimetiere/gi, '').trim() : '';
                 const cemeteryQuery = `مقبرة ${cleanCemetery} ${janazaData.city} المغرب`;
                 const cemeteryLink = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(cemeteryQuery)}`;
 
-                const message = `🕊️ *إعلان جنازة بمدينة ${janazaData.city}* 🕊️\n\n` +
+                const cityHashtag = `#${janazaData.city.replace(/\s+/g, '_')}`;
+                const cemeteryLine = hasCemetery ? `🪦 *المقبرة:* مقبرة ${cleanCemetery || janazaData.cemetery}\n` : '';
+                const cemeteryMapLine = hasCemetery ? `📍 [موقع المقبرة على الخريطة](${cemeteryLink})\n` : '';
+
+                const message = `${cityHashtag}\n` +
+                                `🕊️ *إعلان جنازة بمدينة ${janazaData.city}* 🕊️\n\n` +
                                 `👤 *المتوفى:* ${deceasedName}\n` +
                                 `🕌 *المسجد:* مسجد ${cleanMosque || janazaData.mosque}\n` +
-                                `🪦 *المقبرة:* مقبرة ${cleanCemetery || janazaData.cemetery}\n` +
+                                cemeteryLine +
                                 `🕒 *موعد الصلاة:* ${janazaData.prayer_name} (${dayStr})\n\n` +
                                 `📍 [موقع المسجد على الخريطة](${mosqueLink})\n` +
-                                `📍 [موقع المقبرة على الخريطة](${cemeteryLink})\n\n` +
+                                cemeteryMapLine + `\n` +
                                 `نسألكم الدعاء بالرحمة والمغفرة.\n🌐 *منصة Janaza.ma*`;
 
-                const response = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        chat_id: TELEGRAM_CHAT_ID,
-                        text: message,
-                        parse_mode: 'Markdown',
-                        disable_web_page_preview: true
-                    })
-                });
+                // إرسال للقناة العامة + قناة المدينة المخصصة (إن كانت مختلفة)
+                const targetChats = new Set([TELEGRAM_CITY_CHAT_IDS["all"]]);
+                if (TELEGRAM_CITY_CHAT_IDS[janazaData.city]) {
+                    targetChats.add(TELEGRAM_CITY_CHAT_IDS[janazaData.city]);
+                }
 
-                const result = await response.json();
-                if (result.ok) {
-                    console.log("✅ تم نشر الإعلان في قناة التيليجرام بنجاح!");
-                } else {
-                    console.error("⚠️ تنبيه من تيليجرام (تأكد من إضافة البوت كـ Admin في القناة):", result.description);
+                for (const chatId of targetChats) {
+                    const response = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            chat_id: chatId,
+                            text: message,
+                            parse_mode: 'Markdown',
+                            disable_web_page_preview: true
+                        })
+                    });
+
+                    const result = await response.json();
+                    if (result.ok) {
+                        console.log(`✅ تم نشر الإعلان في قناة التيليجرام (${chatId}) بنجاح!`);
+                    } else {
+                        console.error("⚠️ تنبيه من تيليجرام (تأكد من إضافة البوت كـ Admin في القناة):", result.description);
+                    }
                 }
             } catch (err) {
                 console.error("خطأ أثناء إرسال إشعار التيليجرام:", err);
@@ -752,8 +790,8 @@
                 const mosqueVal = document.getElementById('modal_mosque').value.trim();
                 const cemeteryVal = document.getElementById('modal_cemetery').value.trim();
 
-                if (!mosqueVal || !cemeteryVal) {
-                    showToast("المرجو إدخال اسم المسجد والمقبرة");
+                if (!mosqueVal) {
+                    showToast("المرجو إدخال اسم المسجد");
                     return;
                 }
                 
@@ -936,14 +974,15 @@
             const city = data.city || 'مراكش';
             const mosque = data.mosque || '';
             const cemetery = data.cemetery || '';
+            const hasCemetery = cemetery.trim() !== '';
             const phone = data.family_phone || '';
             
             // تنظيف اسم المسجد وإضافة كلمة مسجد أوتوماتيكياً لتفادي المقاهي والأماكن الأخرى
             let cleanMosque = mosque.replace(/مسجد|جامع|الجامع|المسجد|mosquée|mosquee/gi, '').trim();
             const mosqueQuery = `مسجد ${cleanMosque} ${city} المغرب`;
 
-            // تنظيف اسم المقبرة وإضافة كلمة مقبرة أوتوماتيكياً
-            let cleanCemetery = cemetery.replace(/مقبرة|المقبرة|cimetière|cimetiere/gi, '').trim();
+            // تنظيف اسم المقبرة وإضافة كلمة مقبرة أوتوماتيكياً (إذا كانت محددة)
+            let cleanCemetery = hasCemetery ? cemetery.replace(/مقبرة|المقبرة|cimetière|cimetiere/gi, '').trim() : '';
             const cemeteryQuery = `مقبرة ${cleanCemetery} ${city} المغرب`;
             
             const mosqueMapLink = (data.mosque_map && data.mosque_map.trim() !== '') 
@@ -966,14 +1005,23 @@
 
             // تجهيز رسالة المشاركة المباشرة عبر الواتساب
             const deceasedShareName = isAnonymous ? (gender === 'female' ? 'أمة الله (رحمها الله)' : 'عبد الله (رحمه الله)') : name;
+            const shareCemeteryLine = hasCemetery ? `🪦 *المقبرة:* مقبرة ${cleanCemetery || cemetery}\n` : '';
             const shareText = `🕊️ *إعلان جنازة بمدينة ${city}* 🕊️\n\n` +
                               `👤 *المتوفى:* ${deceasedShareName}\n` +
                               `🕌 *المسجد:* مسجد ${cleanMosque || mosque}\n` +
-                              `🪦 *المقبرة:* مقبرة ${cleanCemetery || cemetery}\n` +
+                              shareCemeteryLine +
                               `🕒 *موعد الصلاة:* ${prayerName} (${dayText})\n\n` +
                               `📍 *موقع المسجد:* ${mosqueMapLink}\n\n` +
                               `نسألكم الدعاء بالرحمة والمغفرة.`;
             const whatsappShareUrl = `https://wa.me/?text=${encodeURIComponent(shareText)}`;
+
+            const cemeteryBadgeHTML = hasCemetery 
+                ? `<div class="flex items-center gap-1.5 bg-gray-50 dark:bg-amek-deep/60 px-3 py-2 rounded-lg">🪦 المقبرة: ${cleanCemetery || cemetery}</div>`
+                : `<div class="flex items-center gap-1.5 bg-gray-50 dark:bg-amek-deep/60 px-3 py-2 rounded-lg text-gray-400">🪦 المقبرة: غير محددة</div>`;
+
+            const cemeteryBtnHTML = hasCemetery 
+                ? `<a href="${cemeteryMapLink}" target="_blank" class="lg:w-36 bg-amek-light dark:bg-amek-deep text-amek-dark dark:text-amek-gold border border-amek-green/20 text-xs font-bold py-2.5 px-3 rounded-xl flex items-center justify-center gap-2 text-center shadow-sm">موقع المقبرة</a>`
+                : '';
 
             return `
                 <div class="janaza-card bg-white dark:bg-amek-card rounded-[1.5rem] p-6 shadow-sm border border-gray-100 dark:border-amek-green/30 flex flex-col lg:flex-row gap-6 lg:items-center relative overflow-hidden">
@@ -994,12 +1042,12 @@
                         <div class="flex flex-wrap gap-3 text-xs font-bold text-gray-700 dark:text-gray-300">
                             <div class="flex items-center gap-1.5 bg-gray-50 dark:bg-amek-deep/60 px-3 py-2 rounded-lg">📍 ${city}</div>
                             <div class="flex items-center gap-1.5 bg-gray-50 dark:bg-amek-deep/60 px-3 py-2 rounded-lg">🕌 المسجد: ${cleanMosque || mosque}</div>
-                            <div class="flex items-center gap-1.5 bg-gray-50 dark:bg-amek-deep/60 px-3 py-2 rounded-lg">🪦 المقبرة: ${cleanCemetery || cemetery}</div>
+                            ${cemeteryBadgeHTML}
                         </div>
                     </div>
                     <div class="grid grid-cols-2 lg:flex lg:flex-col gap-2 shrink-0">
                         <a href="${mosqueMapLink}" target="_blank" class="lg:w-36 bg-amek-dark dark:bg-white dark:text-amek-dark text-white text-xs font-bold py-2.5 px-3 rounded-xl flex items-center justify-center gap-2 text-center shadow-sm">موقع المسجد</a>
-                        <a href="${cemeteryMapLink}" target="_blank" class="lg:w-36 bg-amek-light dark:bg-amek-deep text-amek-dark dark:text-amek-gold border border-amek-green/20 text-xs font-bold py-2.5 px-3 rounded-xl flex items-center justify-center gap-2 text-center shadow-sm">موقع المقبرة</a>
+                        ${cemeteryBtnHTML}
                         <a href="tel:${phone}" class="lg:w-36 bg-white dark:bg-amek-deep border border-gray-200 dark:border-amek-green/40 text-gray-700 dark:text-gray-300 text-xs font-bold py-2.5 px-3 rounded-xl flex items-center justify-center gap-2 text-center">رقم التعزية</a>
                         <a href="${whatsappShareUrl}" target="_blank" class="lg:w-36 bg-[#25D366] hover:bg-[#128C7E] text-white text-xs font-bold py-2.5 px-3 rounded-xl flex items-center justify-center gap-1.5 text-center shadow-sm transition-colors">
                             <span>مشاركة</span>
