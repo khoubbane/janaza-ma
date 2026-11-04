@@ -659,12 +659,11 @@
         // =========================================================================
         // 🟢 1. إعدادات بوت التيليجرام المجاني (Telegram Bot API) - نشر أوتوماتيكي 100%
         // =========================================================================
-        const TELEGRAM_BOT_TOKEN = "YOUR_TELEGRAM_BOT_TOKEN"; // ضع هنا التوكن الذي يعطيك إياه @BotFather
-        const TELEGRAM_CHAT_ID = "@janaza_ma";                // معرف قناتك على تيليجرام (تبدأ بـ @)
+        const TELEGRAM_BOT_TOKEN = "9233222021:AAGenuzzBFZHxS6mys85dz2eQM2eiy1fHWE"; // التوكن المفعل
+        const TELEGRAM_CHAT_ID = "@Janaza_ma";                // معرف قناتك الرسمية
 
         // =========================================================================
         // 🟢 2. روابط قنوات الواتساب وتيليجرام (WhatsApp & Telegram Channels)
-        // يمكنك وضع رابط قناة واحدة عامة، أو رابط قناة خاصة بكل مدينة:
         // =========================================================================
         const WHATSAPP_CHANNELS = {
             "all": "https://whatsapp.com/channel/YOUR_CHANNEL_LINK",
@@ -673,7 +672,7 @@
         };
 
         const TELEGRAM_CHANNELS = {
-            "all": "https://t.me/janaza_ma"
+            "all": "https://t.me/Janaza_ma"
         };
 
         window.joinWhatsAppChannel = function() {
@@ -718,12 +717,7 @@
                                 `📍 [موقع المقبرة على الخريطة](${cemeteryLink})\n\n` +
                                 `نسألكم الدعاء بالرحمة والمغفرة.\n🌐 *منصة Janaza.ma*`;
 
-                if (TELEGRAM_BOT_TOKEN === "YOUR_TELEGRAM_BOT_TOKEN") {
-                    console.log("رسالة التيليجرام جاهزة للإرسال (يرجى وضع التوكن لتفعيلها):\n", message);
-                    return;
-                }
-
-                await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+                const response = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -733,6 +727,13 @@
                         disable_web_page_preview: true
                     })
                 });
+
+                const result = await response.json();
+                if (result.ok) {
+                    console.log("✅ تم نشر الإعلان في قناة التيليجرام بنجاح!");
+                } else {
+                    console.error("⚠️ تنبيه من تيليجرام (تأكد من إضافة البوت كـ Admin في القناة):", result.description);
+                }
             } catch (err) {
                 console.error("خطأ أثناء إرسال إشعار التيليجرام:", err);
             }
