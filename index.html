@@ -630,7 +630,7 @@
     <!-- Firebase & Render Logic -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getFirestore, collection, onSnapshot, addDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, onSnapshot, addDoc, getDocs, query, where } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyBwbA8evbt2MRGgETJVcgsvVi9Q3A9R8jg",
@@ -657,7 +657,70 @@
         const EXPIRY_HOURS = 6;
         const EXPIRY_MS = EXPIRY_HOURS * 60 * 60 * 1000;
 
-        // --- بداية الكود الذي تمت إضافته (منطق إرسال الفورمولير) ---
+        // --- إعدادات WhatsApp API (UltraMsg مثالاً) ---
+        // ملاحظة: لتفعيل الإرسال الفعلي، ضع بيانات حسابك على UltraMsg.com هنا
+        const ULTRAMSG_INSTANCE_ID = "YOUR_INSTANCE_ID"; // مثال: instance12345
+        const ULTRAMSG_TOKEN = "YOUR_TOKEN";             // التوكن الخاص بك
+
+        async function sendWhatsAppNotifications(janazaData) {
+            try {
+                // 1. جلب المشتركين المهتمين بهذه المدينة فقط
+                const q = query(collection(db, "subscribers"), where("city", "==", janazaData.city));
+                const querySnapshot = await getDocs(q);
+                
+                if (querySnapshot.empty) {
+                    console.log("لا يوجد مشتركون في مدينة " + janazaData.city);
+                    return;
+                }
+
+                // 2. تجهيز نص رسالة الواتساب والروابط الذكية
+                const deceasedName = janazaData.name && janazaData.name.trim() !== '' 
+                    ? janazaData.name 
+                    : (janazaData.gender === 'female' ? 'أمة الله (رحمها الله)' : 'عبد الله (رحمه الله)');
+                const dayStr = janazaData.prayer_day === 'tomorrow' ? 'غداً' : 'اليوم';
+                
+                let cleanMosque = janazaData.mosque.replace(/مسجد|جامع|الجامع|المسجد|mosquée|mosquee/gi, '').trim();
+                const mosqueQuery = `مسجد ${cleanMosque} ${janazaData.city} المغرب`;
+                const mosqueLink = (janazaData.mosque_map && janazaData.mosque_map.trim() !== '') 
+                    ? janazaData.mosque_map 
+                    : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(mosqueQuery)}`;
+
+                const message = `🕊️ *إعلان جنازة بمدينة ${janazaData.city}* 🕊️\n\n` +
+                                `👤 *المتوفى:* ${deceasedName}\n` +
+                                `🕌 *المسجد:* مسجد ${cleanMosque || janazaData.mosque}\n` +
+                                `🪦 *المقبرة:* مقبرة ${janazaData.cemetery}\n` +
+                                `🕒 *موعد الصلاة:* ${janazaData.prayer_name} (${dayStr})\n\n` +
+                                `📍 *موقع المسجد على الخريطة:*\n${mosqueLink}\n\n` +
+                                `نسألكم الدعاء بالرحمة والمغفرة.\n🌐 *منصة Janaza.ma*`;
+
+                // التحقق من إدخال مفاتيح الـ API
+                if (ULTRAMSG_INSTANCE_ID === "YOUR_INSTANCE_ID" || ULTRAMSG_TOKEN === "YOUR_TOKEN") {
+                    console.log(`سيتم إرسال هذا الإشعار لـ (${querySnapshot.size}) مشترك في ${janazaData.city}:\n`, message);
+                    return;
+                }
+
+                // 3. إرسال الرسالة لكل مشترك عبر API
+                querySnapshot.forEach(async (docSnap) => {
+                    const sub = docSnap.data();
+                    // تحويل الرقم من 06... إلى +2126...
+                    const intlPhone = "+212" + sub.phone.substring(1);
+                    
+                    await fetch(`https://api.ultramsg.com/${ULTRAMSG_INSTANCE_ID}/messages/chat`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                        body: new URLSearchParams({
+                            token: ULTRAMSG_TOKEN,
+                            to: intlPhone,
+                            body: message
+                        })
+                    });
+                });
+            } catch (err) {
+                console.error("خطأ أثناء إرسال إشعارات الواتساب:", err);
+            }
+        }
+
+        // --- منطق إرسال الفورمولير ---
         const publicJanazaForm = document.getElementById('publicJanazaForm');
         if(publicJanazaForm) {
             publicJanazaForm.addEventListener('submit', async (e) => {
@@ -667,6 +730,13 @@
                 const prayerName = document.getElementById('modal_prayer_name').value;
                 const prayerDay = document.getElementById('modal_prayer_day').value;
                 const phoneInput = document.getElementById('modal_family_phone').value;
+                const mosqueVal = document.getElementById('modal_mosque').value.trim();
+                const cemeteryVal = document.getElementById('modal_cemetery').value.trim();
+
+                if (!mosqueVal || !cemeteryVal) {
+                    showToast("المرجو إدخال اسم المسجد والمقبرة");
+                    return;
+                }
                 
                 if(phoneInput.length !== 9) {
                     showToast("المرجو إدخال 9 أرقام بعد +212");
@@ -694,21 +764,27 @@
                 submitBtn.disabled = true;
                 submitBtn.innerText = 'جاري النشر...';
 
+                const newJanazaData = {
+                    name: document.getElementById('modal_name').value,
+                    gender: document.getElementById('modal_gender').value,
+                    city: document.getElementById('modal_city').value,
+                    mosque: mosqueVal,
+                    cemetery: cemeteryVal,
+                    family_phone: '0' + phoneInput,
+                    mosque_map: document.getElementById('modal_mosque_map').value,
+                    prayer_name: prayerName,
+                    prayer_day: prayerDay,
+                    prayer_time: prayerTime.toISOString(),
+                    createdAt: new Date().toISOString(),
+                    status: 'approved'
+                };
+
                 try {
-                    await addDoc(collection(db, "janazat"), {
-                        name: document.getElementById('modal_name').value,
-                        gender: document.getElementById('modal_gender').value,
-                        city: document.getElementById('modal_city').value,
-                        mosque: document.getElementById('modal_mosque').value,
-                        cemetery: document.getElementById('modal_cemetery').value,
-                        family_phone: '0' + phoneInput,
-                        mosque_map: document.getElementById('modal_mosque_map').value,
-                        prayer_name: prayerName,
-                        prayer_time: prayerTime.toISOString(), // حفظ التوقيت للفلترة التلقائية لاحقاً
-                        createdAt: new Date().toISOString(),
-                        status: 'approved' // يظهر مباشرة في الصفحة الرئيسية
-                    });
+                    await addDoc(collection(db, "janazat"), newJanazaData);
                     
+                    // تشغيل إشعارات الواتساب أوتوماتيكياً لمشتركي هذه المدينة
+                    sendWhatsAppNotifications(newJanazaData);
+
                     closeAddModal();
                     publicJanazaForm.reset();
                     showToast("تم نشر الإعلان بنجاح!");
@@ -722,7 +798,7 @@
             });
         }
 
-        // كود التسجيل في إشعارات الواتساب
+        // كود التسجيل في إشعارات الواتساب (مع منع تكرار الرقم في نفس المدينة)
         const notifyForm = document.getElementById('notifyForm');
         if (notifyForm) {
             notifyForm.addEventListener('submit', async (e) => {
@@ -736,17 +812,30 @@
                     return;
                 }
                 if (phone.length !== 9) {
-                    showToast("المرجو إدخال رقم هاتف صحيح");
+                    showToast("المرجو إدخال رقم هاتف صحيح (9 أرقام)");
                     return;
                 }
 
                 submitBtn.disabled = true;
                 submitBtn.innerText = '...';
 
+                const formattedPhone = '0' + phone;
+
                 try {
+                    // التأكد من عدم تسجيل نفس الرقم في نفس المدينة مسبقاً
+                    const q = query(collection(db, "subscribers"), where("city", "==", city), where("phone", "==", formattedPhone));
+                    const existing = await getDocs(q);
+
+                    if (!existing.empty) {
+                        showToast("هذا الرقم مسجل مسبقاً في إشعارات مدينة " + city);
+                        submitBtn.disabled = false;
+                        submitBtn.innerText = 'تسجيل';
+                        return;
+                    }
+
                     await addDoc(collection(db, "subscribers"), {
                         city: city,
-                        phone: '0' + phone,
+                        phone: formattedPhone,
                         createdAt: new Date().toISOString()
                     });
                     notifyForm.reset();
