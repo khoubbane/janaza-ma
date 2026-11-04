@@ -657,10 +657,14 @@
         const EXPIRY_HOURS = 6;
         const EXPIRY_MS = EXPIRY_HOURS * 60 * 60 * 1000;
 
-        // --- إعدادات WhatsApp API (UltraMsg مثالاً) ---
-        // ملاحظة: لتفعيل الإرسال الفعلي، ضع بيانات حسابك على UltraMsg.com هنا
-        const ULTRAMSG_INSTANCE_ID = "YOUR_INSTANCE_ID"; // مثال: instance12345
-        const ULTRAMSG_TOKEN = "YOUR_TOKEN";             // التوكن الخاص بك
+        // =========================================================================
+        // 🟢 إعدادات الربط مع الواتساب (WhatsApp API - UltraMsg)
+        // لتفعيل الإرسال الحقيقي للهواتف:
+        // 1. افتح حساباً مجانياً في https://ultramsg.com واربط هاتفك بـ QR Code
+        // 2. انسخ الـ Instance ID والـ Token وضعهما مكان الكلمات أسفله:
+        // =========================================================================
+        const ULTRAMSG_INSTANCE_ID = "YOUR_INSTANCE_ID"; // ضع هنا الـ Instance ID (مثال: instance98765)
+        const ULTRAMSG_TOKEN = "YOUR_TOKEN";             // ضع هنا الـ Token الخاص بك
 
         async function sendWhatsAppNotifications(janazaData) {
             try {
@@ -997,6 +1001,17 @@
             const title = isAnonymous ? (gender === 'female' ? 'رحمها الله وغفر لها' : 'رحمه الله وغفر له') : `المرحوم: ${name}`;
             const subTitle = isAnonymous ? 'فضلوا عدم ذكر الإسم، نسألكم الدعاء له بالرحمة.' : 'إن لله وإن إليه راجعون، نسألكم الدعاء بالمغفرة.';
 
+            // تجهيز رسالة المشاركة المباشرة عبر الواتساب
+            const deceasedShareName = isAnonymous ? (gender === 'female' ? 'أمة الله (رحمها الله)' : 'عبد الله (رحمه الله)') : name;
+            const shareText = `🕊️ *إعلان جنازة بمدينة ${city}* 🕊️\n\n` +
+                              `👤 *المتوفى:* ${deceasedShareName}\n` +
+                              `🕌 *المسجد:* مسجد ${cleanMosque || mosque}\n` +
+                              `🪦 *المقبرة:* مقبرة ${cleanCemetery || cemetery}\n` +
+                              `🕒 *موعد الصلاة:* ${prayerName} (${dayText})\n\n` +
+                              `📍 *موقع المسجد:* ${mosqueMapLink}\n\n` +
+                              `نسألكم الدعاء بالرحمة والمغفرة.`;
+            const whatsappShareUrl = `https://wa.me/?text=${encodeURIComponent(shareText)}`;
+
             return `
                 <div class="janaza-card bg-white dark:bg-amek-card rounded-[1.5rem] p-6 shadow-sm border border-gray-100 dark:border-amek-green/30 flex flex-col lg:flex-row gap-6 lg:items-center relative overflow-hidden">
                     <div class="absolute top-0 right-0 w-1.5 h-full ${borderBg}"></div>
@@ -1019,10 +1034,13 @@
                             <div class="flex items-center gap-1.5 bg-gray-50 dark:bg-amek-deep/60 px-3 py-2 rounded-lg">🪦 المقبرة: ${cleanCemetery || cemetery}</div>
                         </div>
                     </div>
-                    <div class="flex flex-row lg:flex-col gap-2 shrink-0">
-                        <a href="${mosqueMapLink}" target="_blank" class="flex-1 lg:w-36 bg-amek-dark dark:bg-white dark:text-amek-dark text-white text-xs font-bold py-2.5 rounded-xl flex items-center justify-center gap-2 text-center shadow-sm">موقع المسجد</a>
-                        <a href="${cemeteryMapLink}" target="_blank" class="flex-1 lg:w-36 bg-amek-light dark:bg-amek-deep text-amek-dark dark:text-amek-gold border border-amek-green/20 text-xs font-bold py-2.5 rounded-xl flex items-center justify-center gap-2 text-center shadow-sm">موقع المقبرة</a>
-                        <a href="tel:${phone}" class="flex-1 lg:w-36 bg-white dark:bg-amek-deep border border-gray-200 dark:border-amek-green/40 text-gray-700 dark:text-gray-300 text-xs font-bold py-2.5 rounded-xl flex items-center justify-center gap-2 text-center">رقم التعزية</a>
+                    <div class="grid grid-cols-2 lg:flex lg:flex-col gap-2 shrink-0">
+                        <a href="${mosqueMapLink}" target="_blank" class="lg:w-36 bg-amek-dark dark:bg-white dark:text-amek-dark text-white text-xs font-bold py-2.5 px-3 rounded-xl flex items-center justify-center gap-2 text-center shadow-sm">موقع المسجد</a>
+                        <a href="${cemeteryMapLink}" target="_blank" class="lg:w-36 bg-amek-light dark:bg-amek-deep text-amek-dark dark:text-amek-gold border border-amek-green/20 text-xs font-bold py-2.5 px-3 rounded-xl flex items-center justify-center gap-2 text-center shadow-sm">موقع المقبرة</a>
+                        <a href="tel:${phone}" class="lg:w-36 bg-white dark:bg-amek-deep border border-gray-200 dark:border-amek-green/40 text-gray-700 dark:text-gray-300 text-xs font-bold py-2.5 px-3 rounded-xl flex items-center justify-center gap-2 text-center">رقم التعزية</a>
+                        <a href="${whatsappShareUrl}" target="_blank" class="lg:w-36 bg-[#25D366] hover:bg-[#128C7E] text-white text-xs font-bold py-2.5 px-3 rounded-xl flex items-center justify-center gap-1.5 text-center shadow-sm transition-colors">
+                            <span>مشاركة</span>
+                        </a>
                     </div>
                 </div>
             `;
